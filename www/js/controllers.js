@@ -1,21 +1,18 @@
 angular.module('app.controllers', [])
      
-.controller('signBookCtrl', ['$scope', '$http', function($scope, $http) {
+.controller('signBookCtrl', function($scope) {
 
-	$http.get('js/data.json').success(function(data) {
-		$scope.artists = data;
-	});
-}])
+})
    
 .controller('cameraCtrl', function($scope) {
 
 })
    
-.controller('oCRTextCtrl', function($scope) {
+.controller('signBookEntryCtrl', function($scope) {
 
 })
    
-.controller('oCRText2Ctrl', function($scope) {
+.controller('saveToSignBookCtrl', function($scope) {
 
 })
  

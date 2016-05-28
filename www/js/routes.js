@@ -36,24 +36,16 @@ angular.module('app.routes', [])
     }
   })
 
-  .state('tabsController.oCRText', {
+  .state('signBookEntry', {
     url: '/entry',
-    views: {
-      'tab3': {
-        templateUrl: 'templates/oCRText.html',
-        controller: 'oCRTextCtrl'
-      }
-    }
+    templateUrl: 'templates/signBookEntry.html',
+    controller: 'signBookEntryCtrl'
   })
 
-  .state('tabsController.oCRText2', {
-    url: '/ocrtext',
-    views: {
-      'tab1': {
-        templateUrl: 'templates/oCRText2.html',
-        controller: 'oCRText2Ctrl'
-      }
-    }
+  .state('saveToSignBook', {
+    url: '/save',
+    templateUrl: 'templates/saveToSignBook.html',
+    controller: 'saveToSignBookCtrl'
   })
 
 $urlRouterProvider.otherwise('/page1/signbook')

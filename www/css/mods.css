@@ -1,0 +1,14 @@
+@media (max-width: 679px) {
+  .pop {
+	transform: translateY(50%);
+  }
+  .active .modal-backdrop-bg {
+    opacity: .6;
+  }
+  .modal-backdrop-bg {
+    -webkit-transition: opacity 300ms ease-in-out;
+    transition: opacity 300ms ease-in-out;
+    background-color: #fff;
+    opacity: 0;
+  }
+}

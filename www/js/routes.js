@@ -36,18 +36,6 @@ angular.module('app.routes', [])
     }
   })
 
-  .state('signBookEntry', {
-    url: '/entry',
-    templateUrl: 'templates/signBookEntry.html',
-    controller: 'signBookEntryCtrl'
-  })
-
-  .state('saveToSignBook', {
-    url: '/save',
-    templateUrl: 'templates/saveToSignBook.html',
-    controller: 'saveToSignBookCtrl'
-  })
-
 $urlRouterProvider.otherwise('/page1/signbook')
 
   

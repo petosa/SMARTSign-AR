@@ -1,11 +1,15 @@
-<ion-view title="SignBook Entry" id="page7" class=" ">
-    <ion-content padding="true" class="has-header">
-        <div class="list card " id="signBookEntry-card21">
-            <button id="signBookEntry-button12" style="font-weight:300;border-radius:100px 100px 100px 100px;" class=" button button-positive  button-clear ">Capri</button>
-            <button id="signBookEntry-button13" style="font-weight:300;border-radius:1px 1px 1px 1px;" class=" button button-positive  button-clear ">Sun</button>
+ <ion-modal-view>
+        <ion-header-bar class="bar bar-header bar-light">
+          <h1 class="title">SignBook Entry</h1>
+          <button class="button button-clear button-primary" ng-click="modal.hide()">Back</button>
+        </ion-header-bar>
+        <ion-content ng-controller="signBookEntryCtrl">
+                    <div class="list card " id="saveToSignBook-card22">
+            <button id="saveToSignBook-button17" ng-click="modal.show()" style="font-weight:300;" class=" button button-positive  button-clear ">Capri</button>
+            <button id="saveToSignBook-button18" ng-click="modal.show()" style="font-weight:300;" class=" button button-positive  button-clear ">Sun</button>
             <div class=" item item-image">
                 <img src="img/4NbuTIRIQNGcjzc0rO0o_caprisun.jpg" width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
             </div>
         </div>
-    </ion-content>
-</ion-view>
+        </ion-content>
+      </ion-modal-view>

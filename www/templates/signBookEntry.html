@@ -1,15 +1,14 @@
- <ion-modal-view>
-        <ion-header-bar class="bar bar-header bar-light">
-          <h1 class="title">SignBook Entry</h1>
-          <button class="button button-clear button-primary" ng-click="modal.hide()">Back</button>
-        </ion-header-bar>
-        <ion-content ng-controller="signBookEntryCtrl">
-                    <div class="list card " id="saveToSignBook-card22">
-            <button id="saveToSignBook-button17" ng-click="modal.show()" style="font-weight:300;" class=" button button-positive  button-clear ">Capri</button>
-            <button id="saveToSignBook-button18" ng-click="modal.show()" style="font-weight:300;" class=" button button-positive  button-clear ">Sun</button>
+<ion-modal-view>
+    <ion-header-bar class="bar bar-header bar-light">
+        <h1 class="title">SignBook Entry</h1>
+        <button class="button button-clear button-primary" ng-click="modal.hide()">Back</button>
+    </ion-header-bar>
+    <ion-content ng-controller="signBookEntryCtrl">
+        <div class="list card " id="saveToSignBook-card22">
+            <button ng-repeat="term in entry.terms" ng-click="show('{{term[0]}}', '{{term[1]}}')" style="font-weight:300;" class=" button button-positive button-clear ">{{term[0]}}</button>
             <div class=" item item-image">
-                <img src="img/4NbuTIRIQNGcjzc0rO0o_caprisun.jpg" width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+                <img src="img/{{entry.img}}.jpg" width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
             </div>
         </div>
-        </ion-content>
-      </ion-modal-view>
+    </ion-content>
+</ion-modal-view>

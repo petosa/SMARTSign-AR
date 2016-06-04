@@ -39,24 +39,62 @@ angular.module('app.controllers', [])
     }
 
     $scope.removeEntry = function(e) {
-
-        for (var i in $rootScope.entries) {
-            if ($rootScope.entries[i]['img'] == e['img']) {
-                $scope.index = i;
-            }
-        }
-        $rootScope.entries.splice($scope.index, 1);
+        $rootScope.entries.splice(e, 1);
         localStorageService.set('entryData', $rootScope.entries);
     }
 
 })
 
-.controller('cameraCtrl', function($scope, $rootScope, localStorageService) {
+.controller('cameraCtrl', function($scope, $rootScope, $ionicModal, $ionicLoading, Camera, localStorageService) {
 
-    $scope.createEntry = function() {
-        $rootScope.entries.push($rootScope.entry);
-        localStorageService.set('entryData', $rootScope.entries);
-    }
+      $scope.takePicture = function (options) {
+
+      var options = {
+         quality : 75,
+         targetWidth: 1080,
+         destinationType: navigator.camera.DestinationType.DATA_URL,
+         sourceType: 1,
+         correctOrientation: true,
+         encodingType: navigator.camera.EncodingType.JPEG
+      };
+
+      Camera.getPicture(options).then(function(imageData) {
+         $scope.hide();
+         $rootScope.entry.img = "data:image/jpeg;base64," + imageData;
+         $scope.modal.show();
+      }, function(err) {
+         $scope.hide();
+         console.log(err);
+      });
+
+      $ionicModal.fromTemplateUrl('templates/saveToSignBook.html', {
+          scope: $scope
+      }).then(function(modal) {
+        $scope.modal = modal;
+        $scope.show();
+      });
+
+      $scope.show = function() {
+          $ionicLoading.show({
+            template: 'Loading...'
+          });
+        };
+
+        $scope.hide = function(){
+          $ionicLoading.hide();
+        };
+
+    };
+
+      $scope.addAndSave = function() {
+          $rootScope.entries.push($scope.gen($rootScope.entry.img));
+          localStorageService.set('entryData', $rootScope.entries);
+      }
+
+      $scope.gen = function(i) {
+          var j = "{img: '" + i + "', terms: [['capri', 'zJqLH8EA2rM'],['sun', 'zJqLH8EA2rM']]}";
+          return eval("(" + j + ")");
+      }
 
 })
 
@@ -73,10 +111,6 @@ angular.module('app.controllers', [])
         $scope.id = i;
         $scope.modal.show();
     }
-
-})
-
-.controller('saveToSignBookCtrl', function($scope) {
 
 })
 

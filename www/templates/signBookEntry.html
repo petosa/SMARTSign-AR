@@ -4,10 +4,10 @@
         <button class="button button-clear button-primary" ng-click="modal.hide()">Back</button>
     </ion-header-bar>
     <ion-content ng-controller="signBookEntryCtrl">
-        <div class="list card " id="saveToSignBook-card22">
+        <div class="list card">
             <button ng-repeat="term in entry.terms" ng-click="show('{{term[0]}}', '{{term[1]}}')" style="font-weight:300;" class=" button button-positive button-clear ">{{term[0]}}</button>
-            <div class=" item item-image">
-                <img src="img/{{entry.img}}.jpg" width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+            <div class="item item-image">
+                <img src="{{entry.img}}" width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
             </div>
         </div>
     </ion-content>

@@ -1,5 +1,6 @@
 <ion-view title="Camera" id="page6" class=" ">
-    <ion-content padding="true" style="background: url(img/vgHMpMenRzGochgzOrGB_black.jpg) no-repeat center;background-size:cover;" scroll="false" class="has-header">
-        <button class="button button-positive  button-block" ng-click="createEntry()">Tap me!</button>
-    </ion-content>
+    <ion-content ng-init="takePicture()" padding="true" style="background: url(img/vgHMpMenRzGochgzOrGB_black.jpg) no-repeat center;background-size:cover;" scroll="false" class="has-header">
+	<ion-spinner class="spinner-energized" style="width: 128px;height: 128px;stroke: #ff111f;fill: #acca11;"></ion-spinner>
+		<img ng-src = "{{picture}}">
+	</ion-content>
 </ion-view>

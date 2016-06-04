@@ -19,6 +19,7 @@ angular.module('app', ['ionic', 'LocalStorageModule', 'app.controllers', 'app.ro
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
     }
+
   });
 })
 

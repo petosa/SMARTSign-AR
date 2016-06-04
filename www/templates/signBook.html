@@ -3,11 +3,11 @@
         <ion-toggle ng-model="shouldShowDelete">
             Show Delete?
         </ion-toggle>
-        <ion-list id="signBook-list1" show-delete="shouldShowDelete">
-            <ion-item class="item-thumbnail-left" ng-repeat='item in entries' ng-click="show({{item}})">
-                <ion-delete-button class="ion-minus-circled" ng-click="removeEntry({{item}})"></ion-delete-button>
-                <img src='img/{{item.img}}.jpg'>
-                <span style="white-space:normal;" ng-repeat='term in item.terms'>{{term[0]}} </span>
+        <ion-list show-delete="shouldShowDelete">
+            <ion-item class="item-thumbnail-left" ng-repeat='item in entries track by $index' ng-click="show({{item}})">
+                <ion-delete-button class="ion-minus-circled" ng-click="removeEntry({{$index}})"></ion-delete-button>
+                <img src="{{item.img}}">
+                <span style="white-space:normal;" ng-repeat='term in item.terms track by $index'>{{term[0]}} </span>
             </ion-item>
         </ion-list>
     </ion-content>

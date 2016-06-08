@@ -2,14 +2,6 @@ angular.module('app.controllers', [])
 
 .controller('signBookCtrl', function($scope, $rootScope, $ionicModal, localStorageService) {
 
-    //$scope.entry = { img: '', terms: '' };
-
-    /*$scope.entries = [
-    { img: 'caprisun', terms: [['capri', 'zJqLH8EA2rM'], ['sun', 'zJqLH8EA2rM']] },
-    { img: 'beans', terms: [['great', 'zJqLH8EA2rM'], ['northern', 'zJqLH8EA2rM'], ['beans', 'zJqLH8EA2rM']] },
-	{ img: 'hotdogs', terms: [['premium', 'zJqLH8EA2rM'], ['jumbo', 'zJqLH8EA2rM'], ['beef', 'zJqLH8EA2rM'], ['franks', 'zJqLH8EA2rM']] }
-  ];*/
-
     $rootScope.entry = {
         img: 'hotdogs',
         terms: [
@@ -45,56 +37,145 @@ angular.module('app.controllers', [])
 
 })
 
-.controller('cameraCtrl', function($scope, $rootScope, $ionicModal, $ionicLoading, Camera, localStorageService) {
+.controller('cameraCtrl', function($scope, $rootScope, $ionicModal, $http, $ionicLoading, Camera, localStorageService) {
 
-      $scope.takePicture = function (options) {
+    //When user clicks camera tab
+    $scope.takePicture = function(options) {
 
-      var options = {
-         quality : 75,
-         targetWidth: 1080,
-         destinationType: navigator.camera.DestinationType.DATA_URL,
-         sourceType: 1,
-         correctOrientation: true,
-         encodingType: navigator.camera.EncodingType.JPEG
-      };
+        //Run at start, create modal and spawn load screen
+        $ionicModal.fromTemplateUrl('templates/saveToSignBook.html', {
+            scope: $scope
+        }).then(function(modal) {
+            $scope.modal = modal;
+            $scope.loading();
+        });
 
-      Camera.getPicture(options).then(function(imageData) {
-         $scope.hide();
-         $rootScope.entry.img = "data:image/jpeg;base64," + imageData;
-         $scope.modal.show();
-      }, function(err) {
-         $scope.hide();
-         console.log(err);
-      });
-
-      $ionicModal.fromTemplateUrl('templates/saveToSignBook.html', {
-          scope: $scope
-      }).then(function(modal) {
-        $scope.modal = modal;
-        $scope.show();
-      });
-
-      $scope.show = function() {
-          $ionicLoading.show({
-            template: 'Loading...'
-          });
+        //Picture options
+        var options = {
+            quality: 75,
+            targetWidth: 1080,
+            destinationType: navigator.camera.DestinationType.DATA_URL,
+            sourceType: 1,
+            correctOrientation: true,
+            encodingType: navigator.camera.EncodingType.JPEG
         };
 
-        $scope.hide = function(){
-          $ionicLoading.hide();
-        };
+        //Launch camera
+        Camera.getPicture(options).then(function(imageData) {
+            //Interpret image text
+            $scope.gcloud(imageData);
+            //Set entry data
+            $rootScope.entry.img = "data:image/jpeg;base64," + imageData;
+            $rootScope.entry.terms = [];
+        }, function(err) {
+            $scope.unloading();
+            console.log(err);
+        });
 
     };
 
-      $scope.addAndSave = function() {
-          $rootScope.entries.push($scope.gen($rootScope.entry.img));
-          localStorageService.set('entryData', $rootScope.entries);
-      }
+    $scope.addAndSave = function() {
+        $rootScope.entries.push($scope.gen($rootScope.entry.img, $rootScope.entry.terms));
+        localStorageService.set('entryData', $rootScope.entries);
+    }
 
-      $scope.gen = function(i) {
-          var j = "{img: '" + i + "', terms: [['capri', 'zJqLH8EA2rM'],['sun', 'zJqLH8EA2rM']]}";
-          return eval("(" + j + ")");
-      }
+    $scope.gen = function(i, t) {
+        var j = "{img: '" + i + "', terms: " + JSON.stringify(t) + "}";
+        return eval("(" + j + ")");
+    }
+
+    $ionicModal.fromTemplateUrl('templates/video.html', {
+        scope: $scope,
+    }).then(function(modal) {
+        $scope.videoModal = modal;
+    });
+
+    $scope.show = function(t, i) {
+        $scope.name = t;
+        $scope.id = i;
+        $scope.videoModal.show();
+    }
+
+    $scope.gcloud = function(content) {
+
+        //Format data json
+        var json = '{' + ' "requests": [' + '	{ ' + '	  "image": {' +
+            '	     "content":"' + content + '"' + '	  },' + '	  "features": [' +
+            '	      {' + '	      	"type": "TEXT_DETECTION",' +
+            '			"maxResults": 200' + '	      }' + '	  ]' + '	}' + ']' + '}';
+
+        //Post
+        $http({
+            method: 'POST',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=API_KEY_GOES_HERE',
+            data: json,
+            headers: {
+                "Content-Type": "application/json"
+            }
+            //On successful callback
+        }).then(function successCallback(response) {
+            try {
+                $scope.format(JSON.stringify(response.data.responses[0].textAnnotations[0].description), true);
+            } catch (e) {
+                $scope.format("", false);
+            }
+            //On error callback
+        }, function errorCallback(response) {
+            $scope.format("", false);
+        });
+
+    }
+
+    $scope.youtube = function(query) {
+        var url = 'http://smartsign.imtc.gatech.edu/videos?keywords=' + query;
+        $http.jsonp(url + "&callback=JSON_CALLBACK").success(function(data) {
+            try {
+                var videoObj = {
+                    name: query,
+                    id: data[0].id,
+                    videoTitle: data[0].keywords
+                };
+                $rootScope.entry.terms.push(videoObj);
+                console.log("Accepted " + query + ": " + data[0].keywords);
+            } catch (e) {
+                console.log("Rejected " + query);
+            }
+        });
+    }
+
+    $scope.format = function(tags, success) {
+
+        while (tags.indexOf('\"') != -1) {
+            tags = tags.replace('\"', "");
+        }
+        while (tags.indexOf(String.fromCharCode(92) + "n") != -1) {
+            tags = tags.replace(String.fromCharCode(92) + "n", " ");
+        }
+
+        var arr = tags.split(" ");
+
+        for (var i = 0; i < arr.length; i++)
+            if (arr[i] != "")
+                $scope.youtube(arr[i].replace("'d", "").replace("'D", "").replace("'s", "").replace("'S", ""));
+
+        $scope.finish(success);
+    }
+
+    $scope.loading = function() {
+        $ionicLoading.show({
+            template: 'Loading...'
+        });
+    };
+
+    $scope.unloading = function() {
+        $ionicLoading.hide();
+    };
+
+    $scope.finish = function(success) {
+        $scope.unloading();
+        if (success)
+            $scope.modal.show();
+    }
 
 })
 
@@ -103,13 +184,13 @@ angular.module('app.controllers', [])
     $ionicModal.fromTemplateUrl('templates/video.html', {
         scope: $scope,
     }).then(function(modal) {
-        $scope.modal = modal;
+        $scope.videoModal = modal;
     });
 
     $scope.show = function(n, i) {
         $scope.name = n;
         $scope.id = i;
-        $scope.modal.show();
+        $scope.videoModal.show();
     }
 
 })

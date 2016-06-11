@@ -1,9 +1,6 @@
-<ion-view title="SignBook" hide-back-button="true" ng-init="getEntries()" id="page5" style="background-color:#FFFFFF;" class=" ">
+<ion-view title="SignBook" hide-back-button="true" ng-init="getEntries()" style="background-color:#FFFFFF;" class=" ">
     <ion-content padding="true" class="has-header">
-        <ion-toggle ng-model="shouldShowDelete">
-            Show Delete?
-        </ion-toggle>
-        <ion-list show-delete="shouldShowDelete">
+        <ion-list show-delete="deleteOn">
             <ion-item class="item-thumbnail-left" ng-repeat='item in entries track by $index' ng-click="show({{item}})">
                 <ion-delete-button class="ion-minus-circled" ng-click="removeEntry({{$index}})"></ion-delete-button>
                 <img src="{{item.img}}">

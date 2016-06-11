@@ -1,6 +1,6 @@
 @media (max-width: 679px) {
   .pop {
-	transform: translateY(50%);
+	transform: translateY(10%);
   }
   .active .modal-backdrop-bg {
     opacity: .6;

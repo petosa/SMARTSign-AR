@@ -1,10 +1,9 @@
-<ion-view title="Tabs Controller" id="page1" style="background-color:#FFFFFF;" class=" ">
-    <ion-tabs class="tabs-light tabs-icon-top " id="tabsController-tabs1">
-        <ion-tab title="SignBook" icon="ion-ios-book" href="#/page1/signbook" id="tabsController-tab3" class=" ">
-            <ion-nav-view name="tab3"></ion-nav-view>
+   	<ion-tabs class="tabs-dark tabs-icon-top">
+        <ion-tab title="SignBook" icon="ion-ios-book" href="#/page1/signbook" class=" ">
+        <ion-nav-view name="tab3"></ion-nav-view>
         </ion-tab>
-        <ion-tab title="Camera" icon="ion-camera" id="tabsController-tab1" ng-controller="cameraCtrl" ng-click="takePicture()">
-
+        <ion-tab title="Camera" icon="ion-camera" ng-controller="cameraCtrl" ng-click="takePicture()">
+        </ion-tab>
+		<ion-tab title="Delete" icon="ion-trash-a" ng-controller="signBookCtrl" ng-click="toggleDelete()">
         </ion-tab>
     </ion-tabs>
-</ion-view>

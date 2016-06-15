@@ -3,9 +3,9 @@
         <h1 class="title">SignBook Entry</h1>
         <button class="button button-clear button-primary" ng-click="modal.hide()">Back</button>
     </ion-header-bar>
-    <ion-content ng-controller="signBookEntryCtrl">
+    <ion-content ng-controller="cameraCtrl">
         <div class="list card">
-            <button ng-repeat="term in entry.terms" ng-click="show('{{term.videoTitle}}', '{{term.id}}')" style="font-weight:300;" class=" button {{term.color}} button-clear ">{{term.name}}</button>
+            <button ng-repeat="term in entry.terms" ng-click="show({{term.jsonArray}})" style="font-weight:300;" class=" button {{term.color}} button-clear ">{{term.name}}</button>
             <div class="item item-image">
                 <img src="{{entry.img}}" width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
             </div>

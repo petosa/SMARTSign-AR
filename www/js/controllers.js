@@ -107,16 +107,67 @@ angular.module('app.controllers', [])
     }).then(function(modal) {
         $scope.videoModal = modal;
     });
+	
+	//Define a modal from the choices template
+    $ionicModal.fromTemplateUrl('templates/choices.html', {
+        scope: $scope,
+    }).then(function(modal) {
+        $scope.choicesModal = modal;
+    });
 
-    //Open the saved modal
-    $scope.show = function(t, i) {
-		if(i != "") {
-			$scope.name = t;
-			$scope.id = i;
-			$scope.videoModal.show();
-		}
+	
+	$scope.getVideoOrder = function(vid) {
+    var keywords = vid.keywords,
+        orderKey, order = 999;
+
+    orderKey = keywords.filter(function(element) {
+        return element.match(/^\{\d+\}$/) !== null;
+    });
+    if (orderKey.length > 0) {
+        order = parseInt(orderKey[0].slice(1,-1), 10);
     }
-
+    return order;
+}
+	
+	
+    //Open the saved modal
+    $scope.show = function(t) {
+		$scope.choiceArray = [];
+		if(t == undefined)
+			return;
+		if(t.toString() != "") {
+			try {
+			t = t.replaceAll("\n","");
+			t = JSON.parse(t);
+			} catch(e){} 
+			if(t.length == 1) {
+				$scope.displayVideo(t[0]);
+			} else if(JSON.stringify(t)[0] == "{") {
+				$scope.displayVideo(t);
+			} 
+			else {
+				for (var i = 0; i < t.length; i++) {
+					var temp = JSON.stringify(t[i].keywords);
+					var choice = {
+						data: t[i],
+						title: temp
+					}
+					$scope.choiceArray.push(choice);
+				}
+				$scope.choiceArray.sort(function(a, b) {
+                return $scope.getVideoOrder(a.data) - $scope.getVideoOrder(b.data);
+				});
+				$scope.choicesModal.show();
+			}
+		} 
+    }
+	 
+	$scope.displayVideo = function(t) {
+		$scope.name = JSON.stringify(t.title).replaceAll(",", ", ").replaceAll("\"","")
+				$scope.id = t.id;
+				$scope.videoModal.show();
+	}
+	
     //Define the gcloud function to parse 
     $scope.gcloud = function(content) {
 
@@ -129,7 +180,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY_HERE',
             data: json,
             headers: {
                 "Content-Type": "application/json"
@@ -161,18 +212,19 @@ angular.module('app.controllers', [])
             try {
                 var videoObj = {
                     name: raw,
-                    id: data[0].id,
-                    videoTitle: data[0].keywords.toString().replaceAll(",",", "),
+                    jsonArray: data,
+                    //videoTitle: data[0].keywords.toString().replaceAll(",",", "),
 					index: ind,
 					color: "button-positive"
                 };
-                $rootScope.entry.terms.push(videoObj);
+				//Force an error if no response
+				data[0].keywords.toString().replaceAll(",",", ");
+				$rootScope.entry.terms.push(videoObj);
                 console.log("Accepted " + query + ": " + data[0].keywords);
             } catch (e) {
 				var videoObj = {
                     name: raw,
-                    id: "",
-                    videoTitle: "",
+                    jsonArray: "",
 					index: ind,
 					color: ""
                 };
@@ -189,8 +241,7 @@ angular.module('app.controllers', [])
 		} else {
 			var videoObj = {
                     name: raw,
-                    id: "",
-                    videoTitle: "",
+                    jsonArray: [],
 					index: ind,
 					color: ""
                 };
@@ -236,6 +287,7 @@ angular.module('app.controllers', [])
 				.replace(";", "")
 				.replace("?", "")
 				.replace("!", "")
+				.replace("_", "")
 				.replace("&", "");
 				
                 $scope.youtube(temp, arr[i], i);
@@ -279,26 +331,6 @@ angular.module('app.controllers', [])
 			template: 'Could not read any text. Open the camera and try again.'
 		});
    };
-
-})
-
-.controller('signBookEntryCtrl', function($scope, $ionicModal) {
-
-    //Store a new modal from the video template
-    $ionicModal.fromTemplateUrl('templates/video.html', {
-        scope: $scope,
-    }).then(function(modal) {
-        $scope.videoModal = modal;
-    });
-
-    //Show the store template
-    $scope.show = function(n, i) {
-		if(i != "") {
-			$scope.name = n;
-			$scope.id = i;
-			$scope.videoModal.show();
-		}
-    }
 
 })
 

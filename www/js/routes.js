@@ -7,12 +7,13 @@ angular.module('app.routes', [])
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
   $stateProvider
-    
-  
+
+
 
    .state('tabsController', {
     url: '/page1',
     templateUrl: 'templates/tabsController.html',
+    controller: 'signBookCtrl',
     abstract:true
   })
 
@@ -38,6 +39,6 @@ angular.module('app.routes', [])
 
 $urlRouterProvider.otherwise('/page1/signbook')
 
-  
+
 
 });

@@ -10,6 +10,18 @@ angular.module('app.controllers', [])
         ]
     };
 
+    $scope.currentBook = "Default Book"
+
+    $scope.smartPrint = function(t, i) {
+        if (i < 21) {
+            return t;
+        } else if (i == 21) {
+            return "..."
+        } else {
+            return "";
+        }
+    }
+
     //Define a modal from the signBookEntry template
     $ionicModal.fromTemplateUrl('templates/signBookEntry.html', {
         scope: $scope
@@ -38,17 +50,59 @@ angular.module('app.controllers', [])
         $rootScope.entries.splice(e, 1);
         localStorageService.set('entryData', $rootScope.entries);
     }
-	
-	$rootScope.deleteOn = false;
-	
-	$rootScope.toggleDelete = function() {
-		console.log($rootScope.deleteOn);
-		$rootScope.deleteOn = !$rootScope.deleteOn;
-		if($rootScope.deleteOn)
-			$rootScope.currentTheme = "tabs-assertive"
-		else
-			$rootScope.currentTheme = "tabs-dark"
-	}
+
+    $scope.moveEntry = function(item, fromIndex, toIndex) {
+        $rootScope.entries.splice(fromIndex, 1);
+        $rootScope.entries.splice(toIndex, 0, item);
+        localStorageService.set('entryData', $rootScope.entries);
+    };
+
+    $scope.trashOn = false;
+    $scope.stackOn = false;
+    $scope.moveOn = false;
+
+    $scope.toggleTrash = function() {
+        if ($scope.moveOn)
+            $scope.toggleMove();
+        if ($scope.stackOn)
+            $scope.toggleStack();
+        $scope.trashOn = !$scope.trashOn;
+        var trashIcon = angular.element(document.querySelector('#trash'));
+        if ($scope.trashOn) {
+            trashIcon.addClass('button-assertive');
+        } else {
+            trashIcon.removeClass('button-assertive');
+        }
+    }
+
+    $scope.toggleMove = function() {
+        if ($scope.stackOn)
+            $scope.toggleStack();
+        if ($scope.trashOn)
+            $scope.toggleTrash();
+        $scope.moveOn = !$scope.moveOn;
+        var moveIcon = angular.element(document.querySelector('#move'));
+        if ($scope.moveOn) {
+            moveIcon.addClass('button-assertive');
+        } else {
+            moveIcon.removeClass('button-assertive');
+        }
+    }
+
+    $scope.toggleStack = function() {
+        if ($scope.moveOn)
+            $scope.toggleMove();
+        if ($scope.trashOn)
+            $scope.toggleTrash();
+        $scope.stackOn = !$scope.stackOn;
+        var stackIcon = angular.element(document.querySelector('#stack'));
+        if ($scope.stackOn) {
+            stackIcon.addClass('button-assertive');
+        } else {
+            stackIcon.removeClass('button-assertive');
+        }
+    }
+
 
 })
 
@@ -107,68 +161,70 @@ angular.module('app.controllers', [])
     }).then(function(modal) {
         $scope.videoModal = modal;
     });
-	
-	//Define a modal from the choices template
+
+    //Define a modal from the choices template
     $ionicModal.fromTemplateUrl('templates/choices.html', {
         scope: $scope,
     }).then(function(modal) {
         $scope.choicesModal = modal;
     });
 
-	
-	$scope.getVideoOrder = function(vid) {
-    var keywords = vid.keywords,
-        orderKey, order = 999;
-
-    orderKey = keywords.filter(function(element) {
-        return element.match(/^\{\d+\}$/) !== null;
-    });
-    if (orderKey.length > 0) {
-        order = parseInt(orderKey[0].slice(1,-1), 10);
+    $scope.hideChoices = function() {
+        $scope.choicesModal.hide();
+        $scope.choiceArray = [];
     }
-    return order;
-}
-	
-	
+
+    $scope.getVideoOrder = function(vid) {
+        var keywords = vid.keywords,
+            orderKey, order = 999;
+
+        orderKey = keywords.filter(function(element) {
+            return element.match(/^\{\d+\}$/) !== null;
+        });
+        if (orderKey.length > 0) {
+            order = parseInt(orderKey[0].slice(1, -1), 10);
+        }
+        return order;
+    }
+
     //Open the saved modal
     $scope.show = function(t) {
-		$scope.choiceArray = [];
-		if(t == undefined)
-			return;
-		if(t.toString() != "") {
-			try {
-			t = t.replaceAll("\n","");
-			t = JSON.parse(t);
-			} catch(e){} 
-			if(t.length == 1) {
-				$scope.displayVideo(t[0]);
-			} else if(JSON.stringify(t)[0] == "{") {
-				$scope.displayVideo(t);
-			} 
-			else {
-				for (var i = 0; i < t.length; i++) {
-					var temp = JSON.stringify(t[i].keywords);
-					var choice = {
-						data: t[i],
-						title: temp
-					}
-					$scope.choiceArray.push(choice);
-				}
-				$scope.choiceArray.sort(function(a, b) {
-                return $scope.getVideoOrder(a.data) - $scope.getVideoOrder(b.data);
-				});
-				$scope.choicesModal.show();
-			}
-		} 
+        $scope.choiceArray = [];
+        if (t == undefined)
+            return;
+        if (t.toString() != "") {
+            try {
+                t = t.replaceAll("\n", "");
+                t = JSON.parse(t);
+            } catch (e) {}
+            if (t.length == 1) {
+                $scope.displayVideo(t[0]);
+            } else if (JSON.stringify(t)[0] == "{") {
+                $scope.displayVideo(t);
+            } else {
+                for (var i = 0; i < t.length; i++) {
+                    var temp = JSON.stringify(t[i].keywords);
+                    var choice = {
+                        data: t[i],
+                        title: temp
+                    }
+                    $scope.choiceArray.push(choice);
+                }
+                $scope.choiceArray.sort(function(a, b) {
+                    return $scope.getVideoOrder(a.data) - $scope.getVideoOrder(b.data);
+                });
+                $scope.choicesModal.show();
+            }
+        }
     }
-	 
-	$scope.displayVideo = function(t) {
-		$scope.name = JSON.stringify(t.title).replaceAll(",", ", ").replaceAll("\"","")
-				$scope.id = t.id;
-				$scope.videoModal.show();
-	}
-	
-    //Define the gcloud function to parse 
+
+    $scope.displayVideo = function(t) {
+        $scope.name = JSON.stringify(t.title).replaceAll(",", ", ").replaceAll("\"", "")
+        $scope.id = t.id;
+        $scope.videoModal.show();
+    }
+
+    //Define the gcloud function to parse
     $scope.gcloud = function(content) {
 
         //Format data json
@@ -180,7 +236,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY_HERE',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY',
             data: json,
             headers: {
                 "Content-Type": "application/json"
@@ -199,69 +255,69 @@ angular.module('app.controllers', [])
 
     }
 
-	String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.split(search).join(replacement);
-	};
-	
-    //Query the CATS database for a phrase 
+    String.prototype.replaceAll = function(search, replacement) {
+        var target = this;
+        return target.split(search).join(replacement);
+    };
+
+    //Query the CATS database for a phrase
     $scope.youtube = function(query, raw, ind) {
         var url = 'http://smartsign.imtc.gatech.edu/videos?keywords=' + query;
-		if(query != "") {
-        $http.jsonp(url + "&callback=JSON_CALLBACK").success(function(data) {
-            try {
-                var videoObj = {
-                    name: raw,
-                    jsonArray: data,
-                    //videoTitle: data[0].keywords.toString().replaceAll(",",", "),
-					index: ind,
-					color: "button-positive"
-                };
-				//Force an error if no response
-				data[0].keywords.toString().replaceAll(",",", ");
-				$rootScope.entry.terms.push(videoObj);
-                console.log("Accepted " + query + ": " + data[0].keywords);
-            } catch (e) {
-				var videoObj = {
-                    name: raw,
-                    jsonArray: "",
-					index: ind,
-					color: ""
-                };
-				$rootScope.entry.terms.push(videoObj);
-                console.log("Rejected " + query);
-            } finally {
-                $scope.phrasesParsed = $scope.phrasesParsed + 1;
-                console.log($scope.phrasesParsed + " of " + $scope.totalPhrases)
-                if ($scope.phrasesParsed == $scope.totalPhrases) {
-                    $scope.finish(true);
+        if (query != "") {
+            $http.jsonp(url + "&callback=JSON_CALLBACK").success(function(data) {
+                try {
+                    var videoObj = {
+                        name: raw,
+                        jsonArray: data,
+                        //videoTitle: data[0].keywords.toString().replaceAll(",",", "),
+                        index: ind,
+                        color: "button-positive"
+                    };
+                    //Force an error if no response
+                    data[0].keywords.toString().replaceAll(",", ", ");
+                    $rootScope.entry.terms.push(videoObj);
+                    console.log("Accepted " + query + ": " + data[0].keywords);
+                } catch (e) {
+                    var videoObj = {
+                        name: raw,
+                        jsonArray: "",
+                        index: ind,
+                        color: ""
+                    };
+                    $rootScope.entry.terms.push(videoObj);
+                    console.log("Rejected " + query);
+                } finally {
+                    $scope.phrasesParsed = $scope.phrasesParsed + 1;
+                    console.log($scope.phrasesParsed + " of " + $scope.totalPhrases)
+                    if ($scope.phrasesParsed == $scope.totalPhrases) {
+                        $scope.finish(true);
+                    }
                 }
+            });
+        } else {
+            var videoObj = {
+                name: raw,
+                jsonArray: [],
+                index: ind,
+                color: ""
+            };
+            $rootScope.entry.terms.push(videoObj);
+            console.log("Rejected " + query);
+            $scope.phrasesParsed = $scope.phrasesParsed + 1;
+            console.log($scope.phrasesParsed + " of " + $scope.totalPhrases)
+            if ($scope.phrasesParsed == $scope.totalPhrases) {
+                $scope.finish(true);
             }
-        });
-		} else {
-			var videoObj = {
-                    name: raw,
-                    jsonArray: [],
-					index: ind,
-					color: ""
-                };
-				$rootScope.entry.terms.push(videoObj);
-                console.log("Rejected " + query);
-				$scope.phrasesParsed = $scope.phrasesParsed + 1;
-                console.log($scope.phrasesParsed + " of " + $scope.totalPhrases)
-                if ($scope.phrasesParsed == $scope.totalPhrases) {
-                    $scope.finish(true);
-                }
-		}
+        }
     }
 
     $scope.format = function(tags, success) {
 
-		if(!success) {
-			$scope.unloading();
-			$scope.showAlert();
-		}
-	
+        if (!success) {
+            $scope.unloading();
+            $scope.showAlert();
+        }
+
         while (tags.indexOf('\"') != -1) {
             tags = tags.replace('\"', "");
         }
@@ -276,22 +332,22 @@ angular.module('app.controllers', [])
 
         for (var i = 0; i < arr.length; i++)
             if (arr[i] != "") {
-				var temp = arr[i]
-				.replace("'d", "")
-				.replace("'D", "")
-				.replace("'s", "")
-				.replace("'S", "")
-				.replace(".", "")
-				.replace(",", "")
-				.replace(":", "")
-				.replace(";", "")
-				.replace("?", "")
-				.replace("!", "")
-				.replace("_", "")
-				.replace("&", "");
-				
+                var temp = arr[i]
+                    .replace("'d", "")
+                    .replace("'D", "")
+                    .replace("'s", "")
+                    .replace("'S", "")
+                    .replace(".", "")
+                    .replace(",", "")
+                    .replace(":", "")
+                    .replace(";", "")
+                    .replace("?", "")
+                    .replace("!", "")
+                    .replace("_", "")
+                    .replace("&", "");
+
                 $scope.youtube(temp, arr[i], i);
-			}
+            }
     }
 
     //Show loading screen
@@ -306,31 +362,31 @@ angular.module('app.controllers', [])
         $ionicLoading.hide();
     };
 
-	//Comparator
-	$scope.compare = function(a,b) {
-  if (a.index < b.index)
-    return -1;
-  else if (a.index > b.index)
-    return 1;
-  else 
-    return 0;
-}
-	
+    //Comparator
+    $scope.compare = function(a, b) {
+        if (a.index < b.index)
+            return -1;
+        else if (a.index > b.index)
+            return 1;
+        else
+            return 0;
+    }
+
     //Called once all data is gathered
     $scope.finish = function(success) {
-		$rootScope.entry.terms.sort($scope.compare);
+        $rootScope.entry.terms.sort($scope.compare);
         $scope.unloading();
         if (success)
             $scope.modal.show();
     }
-	
-	//Show error
-	$scope.showAlert = function() {
-		var alertPopup = $ionicPopup.alert({
-			title: 'Failed',
-			template: 'Could not read any text. Open the camera and try again.'
-		});
-   };
+
+    //Show error
+    $scope.showAlert = function() {
+        var alertPopup = $ionicPopup.alert({
+            title: 'Failed',
+            template: 'Could not read any text. Open the camera and try again.'
+        });
+    };
 
 })
 

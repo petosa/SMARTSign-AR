@@ -11,7 +11,7 @@ angular.module('app.controllers', [])
     };
 
     $scope.currentBook = "Default Book"
-
+	
     $scope.smartPrint = function(t, i) {
         if (i < 21) {
             return t;
@@ -29,12 +29,25 @@ angular.module('app.controllers', [])
         $scope.modal = modal;
     });
 
+	//Define a modal from the library template
+    $ionicModal.fromTemplateUrl('templates/library.html', {
+        scope: $scope
+    }).then(function(modal) {
+        $scope.libraryModal = modal;
+    });
+
     //Display the stored modal
     $scope.show = function(e) {
         $scope.entry = e;
         $scope.modal.show();
     }
 
+    //Display the stored modal
+    $scope.showLibrary = function(e) {
+        $scope.entry = e;
+        $scope.libraryModal.show();
+    }
+	
     //Discover stored entry data and load it into a variable
     $scope.getEntries = function() {
         if (localStorageService.get('entryData')) {
@@ -60,7 +73,21 @@ angular.module('app.controllers', [])
     $scope.trashOn = false;
     $scope.stackOn = false;
     $scope.moveOn = false;
+	$scope.delIcon = "";
 
+	$scope.flipFlop = function(ind) {
+		if($scope.trashOn) {
+			$scope.removeEntry(ind);
+		} else if($scope.moveOn) {
+			var state = $rootScope.entries[ind].selected;
+			if(state) {
+				$rootScope.entries[ind].selected = false;
+			} else {
+				$rootScope.entries[ind].selected = true;
+			}
+		}
+	}
+	
     $scope.toggleTrash = function() {
         if ($scope.moveOn)
             $scope.toggleMove();
@@ -81,6 +108,9 @@ angular.module('app.controllers', [])
         if ($scope.trashOn)
             $scope.toggleTrash();
         $scope.moveOn = !$scope.moveOn;
+		for(var i = 0; i < $rootScope.entries.length; i++) {
+			$rootScope.entries[i].selected = false;
+		}
         var moveIcon = angular.element(document.querySelector('#move'));
         if ($scope.moveOn) {
             moveIcon.addClass('button-assertive');
@@ -88,7 +118,17 @@ angular.module('app.controllers', [])
             moveIcon.removeClass('button-assertive');
         }
     }
-
+	
+	$scope.getBubble = function(ind) {
+		if($scope.trashOn)
+			return "ion-trash-a"
+		if($rootScope.entries[ind].selected == false) {
+			return "ion-ios-circle-outline";
+		} else {
+			return "ion-ios-circle-filled"
+		}
+	}
+	
     $scope.toggleStack = function() {
         if ($scope.moveOn)
             $scope.toggleMove();
@@ -151,7 +191,7 @@ angular.module('app.controllers', [])
 
     //Return a json object containing a stringified image and its terms
     $scope.gen = function(i, t) {
-        var j = "{img: '" + i + "', terms: " + JSON.stringify(t) + "}";
+        var j = "{img: '" + i + "', terms: " + JSON.stringify(t) + ", selected: false}";
         return eval("(" + j + ")");
     }
 
@@ -236,7 +276,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_KEY_HERE',
             data: json,
             headers: {
                 "Content-Type": "application/json"

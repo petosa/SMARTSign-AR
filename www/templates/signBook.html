@@ -1,8 +1,8 @@
-<ion-view title='SignBook [{{currentBook}}]' hide-back-button="true" ng-init="getEntries()" style="background-color:#FFFFFF;" class=" ">
+<ion-view title='SMARTSign Magic' hide-back-button="true" ng-init="getEntries()" style="background-color:#FFFFFF;" class=" ">
 
     <ion-nav-buttons side="secondary">
       <button
-      id="move" class="button button-clear icon ion-forward icon-right button-spinner" ng-click="toggleMove()">
+      id="move" class="button button-clear icon ion-forward button-light icon-right button-spinner" ng-click="toggleMove()">
       </button>
       <button
       id="stack" class="button button-clear icon ion-navicon-round button-light icon-right button-spinner" ng-click="toggleStack()">
@@ -12,11 +12,12 @@
        </button>
     </ion-nav-buttons>
     <ion-content ="true" class="has-header">
-        <ion-list show-delete="trashOn" show-reorder="stackOn">
-            <ion-item class="item-thumbnail-left" ng-repeat='item in entries track by $index' ng-click="show({{item}})">
-                <ion-delete-button class="ion-minus-circled" ng-click="removeEntry({{$index}})"></ion-delete-button>
+        <ion-list show-delete="trashOn || moveOn" show-reorder="stackOn">
+            <ion-item class="item-thumbnail-left item-checkbox" ng-repeat='item in entries track by $index' ng-click="show({{item}})">
+                <ion-delete-button class={{getBubble($index)}}  ng-click=flipFlop($index)></ion-delete-button>
                 <ion-reorder-button class="ion-navicon" on-reorder="moveEntry(item, $fromIndex, $toIndex)"></ion-reorder-button>
-                <img src="{{item.img}}">
+
+				<img src="{{item.img}}">
                 <span class="ellipsis" style="white-space:normal;" ng-repeat='term in item.terms track by $index'>{{smartPrint(term.name, $index)}} </span>
             </ion-item>
         </ion-list>

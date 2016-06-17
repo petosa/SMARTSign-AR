@@ -1,0 +1,13 @@
+ <ion-modal-view ng-app='app' ng-controller='videoCtrl' ng-click='hideChoices()' style="background: transparent !important;">
+        <ion-header-bar class="bar bar-header bar-dark">
+        <h1 class="title">Select One</h1>
+        <button class="button button-clear button-primary" ng-click="choicesModal.hide()">Back</button>
+    </ion-header-bar>
+	<ion-content>
+        <ion-list>
+            <ion-item ng-repeat='item in choiceArray track by $index' ng-click="show({{item.data}})">
+                <span style="white-space:normal;">{{item.data.title}}</span>
+			</ion-item>
+        </ion-list>
+    </ion-content>
+</ion-modal-view>

@@ -3,15 +3,40 @@ angular.module('app.controllers', [])
 .controller('signBookCtrl', function($scope, $rootScope, $ionicModal, localStorageService) {
 
     $rootScope.entry = {
-        img: 'hotdogs',
+        img: '',
         terms: [
-            ['capri', 'zJqLH8EA2rM'],
-            ['sun', 'zJqLH8EA2rM']
+            ['', ''],
         ]
     };
+    $rootScope.currentBook = "Default Book";
 
-    $scope.currentBook = "Default Book"
-	
+    $scope.getTitle = function() {
+        if ($rootScope.currentBook == "Default Book") {
+            return "SMARTSign Magic"
+        } else {
+            return $rootScope.currentBook;
+        }
+    }
+
+    $rootScope.colorTrash = function(bool) {
+        var b = angular.element(document.querySelector('#libraryTrash'));
+        if (bool) {
+            b.addClass('button-assertive');
+            console.log("Trash colored red");
+        } else {
+            b.removeClass('button-assertive');
+        }
+    }
+
+    $rootScope.colorReorder = function(bool) {
+        var b = angular.element(document.querySelector('#libraryStack'));
+        if (bool) {
+            b.addClass('button-calm');
+        } else {
+            b.removeClass('button-calm');
+        }
+    }
+
     $scope.smartPrint = function(t, i) {
         if (i < 21) {
             return t;
@@ -29,65 +54,70 @@ angular.module('app.controllers', [])
         $scope.modal = modal;
     });
 
-	//Define a modal from the library template
-    $ionicModal.fromTemplateUrl('templates/library.html', {
-        scope: $scope
-    }).then(function(modal) {
-        $scope.libraryModal = modal;
-    });
+    //Define a modal from the library template
+
 
     //Display the stored modal
     $scope.show = function(e) {
-        $scope.entry = e;
+        $scope.entry = $rootScope.entries[e];
         $scope.modal.show();
     }
 
     //Display the stored modal
     $scope.showLibrary = function(e) {
-        $scope.entry = e;
-        $scope.libraryModal.show();
-    }
-	
-    //Discover stored entry data and load it into a variable
-    $scope.getEntries = function() {
-        if (localStorageService.get('entryData')) {
-            $rootScope.entries = localStorageService.get('entryData');
-        } else {
-            $rootScope.entries = [];
+        switch (e) {
+            case 0:
+                $rootScope.libraryTitle = "My Library"
+                break;
+            case 1:
+                $rootScope.libraryTitle = "Move to which book?"
+                break;
+            case 2:
+                $rootScope.libraryTitle = "Save to which book?"
+                break;
         }
-        localStorageService.set('entryData', $scope.entries);
+        $rootScope.libraryTrash = false;
+        $rootScope.libraryStack = false;
+        $rootScope.colorTrash(false);
+        $rootScope.colorReorder(false);
+        $ionicModal.fromTemplateUrl('templates/library.html', {
+            scope: $scope
+        }).then(function(modal) {
+            $scope.libraryModal = modal;
+            $scope.libraryModal.show();
+        });
     }
 
     //Remove a list item from memory and storage
     $scope.removeEntry = function(e) {
         $rootScope.entries.splice(e, 1);
-        localStorageService.set('entryData', $rootScope.entries);
+        $rootScope.safeSet($rootScope.currentBook, $rootScope.entries);
     }
 
     $scope.moveEntry = function(item, fromIndex, toIndex) {
         $rootScope.entries.splice(fromIndex, 1);
         $rootScope.entries.splice(toIndex, 0, item);
-        localStorageService.set('entryData', $rootScope.entries);
+        $rootScope.safeSet($rootScope.currentBook, $rootScope.entries);
     };
 
     $scope.trashOn = false;
     $scope.stackOn = false;
     $scope.moveOn = false;
-	$scope.delIcon = "";
+    $scope.delIcon = "";
 
-	$scope.flipFlop = function(ind) {
-		if($scope.trashOn) {
-			$scope.removeEntry(ind);
-		} else if($scope.moveOn) {
-			var state = $rootScope.entries[ind].selected;
-			if(state) {
-				$rootScope.entries[ind].selected = false;
-			} else {
-				$rootScope.entries[ind].selected = true;
-			}
-		}
-	}
-	
+    $scope.flipFlop = function(ind) {
+        if ($scope.trashOn) {
+            $scope.removeEntry(ind);
+        } else if ($scope.moveOn) {
+            var state = $rootScope.entries[ind].selected;
+            if (state) {
+                $rootScope.entries[ind].selected = false;
+            } else {
+                $rootScope.entries[ind].selected = true;
+            }
+        }
+    }
+
     $scope.toggleTrash = function() {
         if ($scope.moveOn)
             $scope.toggleMove();
@@ -108,27 +138,28 @@ angular.module('app.controllers', [])
         if ($scope.trashOn)
             $scope.toggleTrash();
         $scope.moveOn = !$scope.moveOn;
-		for(var i = 0; i < $rootScope.entries.length; i++) {
-			$rootScope.entries[i].selected = false;
-		}
+        console.log($scope.moveOn)
+        for (var i = 0; i < $rootScope.entries.length; i++) {
+            $rootScope.entries[i].selected = false;
+        }
         var moveIcon = angular.element(document.querySelector('#move'));
         if ($scope.moveOn) {
-            moveIcon.addClass('button-assertive');
+            moveIcon.addClass('button-calm');
         } else {
-            moveIcon.removeClass('button-assertive');
+            moveIcon.removeClass('button-calm');
         }
     }
-	
-	$scope.getBubble = function(ind) {
-		if($scope.trashOn)
-			return "ion-trash-a"
-		if($rootScope.entries[ind].selected == false) {
-			return "ion-ios-circle-outline";
-		} else {
-			return "ion-ios-circle-filled"
-		}
-	}
-	
+
+    $scope.getBubble = function(ind) {
+        if ($scope.trashOn)
+            return "ion-trash-a"
+        if ($rootScope.entries[ind].selected == false) {
+            return "ion-ios-circle-outline";
+        } else {
+            return "ion-ios-circle-filled"
+        }
+    }
+
     $scope.toggleStack = function() {
         if ($scope.moveOn)
             $scope.toggleMove();
@@ -137,13 +168,32 @@ angular.module('app.controllers', [])
         $scope.stackOn = !$scope.stackOn;
         var stackIcon = angular.element(document.querySelector('#stack'));
         if ($scope.stackOn) {
-            stackIcon.addClass('button-assertive');
+            stackIcon.addClass('button-calm');
         } else {
-            stackIcon.removeClass('button-assertive');
+            stackIcon.removeClass('button-calm');
         }
     }
 
+    $rootScope.safeGet = function(a) {
+        return localStorageService.get("." + a);
+    }
 
+    $rootScope.safeSet = function(a, b) {
+        localStorageService.set("." + a, b);
+    }
+
+    $rootScope.safeRemove = function(a) {
+        localStorageService.remove("." + a);
+    }
+
+    //Discover stored entry data and load it into a variable
+    $rootScope.getEntries = function() {
+        if ($rootScope.safeGet($rootScope.currentBook)) {
+            $rootScope.entries = $rootScope.safeGet($rootScope.currentBook);
+        } else {
+            $rootScope.entries = [];
+        }
+    }
 })
 
 .controller('cameraCtrl', function($scope, $rootScope, $ionicPopup, $ionicModal, $http, $ionicLoading, Camera, localStorageService) {
@@ -184,9 +234,9 @@ angular.module('app.controllers', [])
     };
 
     //Add the current entry to the entries array and save in storage
-    $scope.addAndSave = function() {
+    $rootScope.addAndSave = function() {
         $rootScope.entries.push($scope.gen($rootScope.entry.img, $rootScope.entry.terms));
-        localStorageService.set('entryData', $rootScope.entries);
+        $rootScope.safeSet($rootScope.currentBook, $rootScope.entries);
     }
 
     //Return a json object containing a stringified image and its terms
@@ -212,6 +262,10 @@ angular.module('app.controllers', [])
     $scope.hideChoices = function() {
         $scope.choicesModal.hide();
         $scope.choiceArray = [];
+    }
+
+    $rootScope.hideSaveScreen = function() {
+        $scope.modal.hide();
     }
 
     $scope.getVideoOrder = function(vid) {
@@ -276,7 +330,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_KEY_HERE',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY',
             data: json,
             headers: {
                 "Content-Type": "application/json"
@@ -430,12 +484,163 @@ angular.module('app.controllers', [])
 
 })
 
-.controller('videoCtrl', function($scope, $sce) {
+.controller('videoCtrl', function($scope, $rootScope, $sce) {
 
     //Returns a validated url to the youtube video
     $scope.getUrl = function() {
         $scope.url = $sce.trustAsResourceUrl('https://www.youtube.com/embed/' + $scope.id + '?rel=0&amp;showinfo=0');
         return $scope.url;
     }
+})
 
+.controller('libraryCtrl', function($scope, $rootScope, $ionicPopup, localStorageService) {
+
+    $rootScope.currentBook = "Default Book";
+    $rootScope.libraryTitle = "My Library"
+    $rootScope.library = [];
+    $rootScope.libraryTrash = false;
+    $rootScope.libraryStack = false;
+
+    //ng-init of library popup modal
+    $scope.getLibrary = function() {
+        if (localStorageService.get('library')) {
+            $rootScope.library = localStorageService.get('library');
+        } else {
+            $rootScope.library = ['Default Book'];
+        }
+    }
+
+    //Hide library modal
+    $scope.hideLibrary = function() {
+        $scope.libraryModal.remove();
+    }
+
+    $scope.bookListing = function(b) {
+        b = $rootScope.library[b];
+        var temp = $rootScope.safeGet(b);
+        if (!temp) {
+            return b + " (0 pages)"
+        }
+        return b + " (" + temp.length + " pages)"
+    };
+
+    $scope.doClick = function(e) {
+        e = $rootScope.library[e];
+        if ($rootScope.libraryTitle == "My Library") {
+            $rootScope.currentBook = e;
+            $scope.hideLibrary();
+            $rootScope.getEntries();
+        }
+        if ($rootScope.libraryTitle == "Save to which book?") {
+            $rootScope.currentBook = e;
+            $rootScope.getEntries();
+            $rootScope.addAndSave();
+            $scope.hideLibrary();
+            $rootScope.hideSaveScreen();
+        } else if ($rootScope.libraryTitle == "Move to which book?") {
+            var temp = $rootScope.safeGet(e);
+            if (!temp) {
+                temp = [];
+            }
+            var count = $rootScope.entries.length;
+            var toRemove = [];
+            for (var i = 0; i < count; i++) {
+                var t = $rootScope.entries[i];
+                if (t.selected) {
+                    t.selected = false;
+                    temp.push(t);
+                    toRemove.push(t);
+                }
+            }
+            //Case: Moves to current directory
+            if ($rootScope.currentBook == e) {
+                $scope.toggleMove();
+                $scope.hideLibrary();
+            } else {
+                $rootScope.safeSet(e, temp);
+                for (var i = 0; i < toRemove.length; i++) {
+                    $rootScope.entries.splice($rootScope.entries.indexOf(toRemove[i]), 1);
+                }
+                $rootScope.safeSet($rootScope.currentBook, $rootScope.entries);
+                $rootScope.currentBook = e;
+                $scope.toggleMove();
+                $rootScope.getEntries();
+                $scope.hideLibrary();
+            }
+        }
+    }
+
+    $scope.doDelete = function() {
+        $rootScope.libraryTrash = !$rootScope.libraryTrash;
+        $rootScope.libraryStack = false;
+        $rootScope.colorReorder(false);
+        $rootScope.colorTrash($rootScope.libraryTrash);
+    }
+
+    $scope.doReorder = function() {
+        $rootScope.libraryStack = !$rootScope.libraryStack;
+        $rootScope.libraryTrash = false;
+        $rootScope.colorTrash(false);
+        $rootScope.colorReorder($rootScope.libraryStack);
+    }
+
+    $scope.getBookIcon = function(e) {
+        e = $rootScope.library[e];
+        if (e == $rootScope.currentBook) {
+            return 'icon ion-ios-book';
+        } else {
+            return 'icon ion-ios-book-outline';
+        }
+    }
+
+    $scope.doDelete2 = function(e) {
+        //Show error if deleting default book or, while in Move mode, attempting
+        //to delete the folder you are moving a page from.
+        if ($rootScope.library[e] != "Default Book" &&
+            !($rootScope.libraryTitle == "Move to which book?" &&
+                $rootScope.library[e] == $rootScope.currentBook)) {
+            var toDelete = $rootScope.library[e];
+            $rootScope.library.splice(e, 1);
+            localStorageService.set('library', $rootScope.library);
+            $rootScope.safeRemove(toDelete);
+            if ($rootScope.currentBook == toDelete) {
+                $rootScope.currentBook = "Default Book";
+                $rootScope.getEntries();
+            }
+        } else {
+            $scope.refuseDelete();
+        }
+    }
+
+    //Show error
+    $scope.refuseDelete = function() {
+        var alertPopup = $ionicPopup.alert({
+            title: 'Failed',
+            template: 'I can\'t delete this right now.'
+        });
+    };
+
+    $scope.moveLibrary = function(item, fromIndex, toIndex) {
+        $rootScope.library.splice(fromIndex, 1);
+        $rootScope.library.splice(toIndex, 0, item);
+        localStorageService.set('library', $rootScope.library);
+    };
+
+    $scope.doAdd = function() {
+        var promptPopup = $ionicPopup.prompt({
+            title: 'New Book',
+            template: 'Give your new book a name.'
+        });
+
+        promptPopup.then(function(res) {
+            if (res) {
+                if ($rootScope.library.indexOf(res) == -1) {
+                    $rootScope.library.push(res);
+                    localStorageService.set('library', $rootScope.library);
+                }
+            } else {
+                console.log('No input, no book created');
+            }
+        });
+    };
 })

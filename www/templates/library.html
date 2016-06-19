@@ -1,13 +1,21 @@
- <ion-modal-view ng-app='app' ng-controller='videoCtrl' ng-click='hideChoices()' style="background: transparent !important;">
-        <ion-header-bar class="bar bar-header bar-dark">
-        <h1 class="title">Select One</h1>
-        <button class="button button-clear button-primary" ng-click="choicesModal.hide()">Back</button>
-    </ion-header-bar>
-	<ion-content>
-        <ion-list>
-            <ion-item ng-repeat='item in choiceArray track by $index' ng-click="show({{item.data}})">
-                <span style="white-space:normal;">{{item.data.title}}</span>
-			</ion-item>
-        </ion-list>
-    </ion-content>
+<ion-modal-view ng-app='app' ng-controller='libraryCtrl' ng-init="getLibrary()" style="background: transparent !important;">
+   <ion-header-bar class="bar bar-header bar-dark">
+      <h2 class="title">{{libraryTitle}}</h2>
+      <button class="button button-primary" ng-click="hideLibrary()">Back</button>
+   </ion-header-bar>
+   <ion-content scroll="true">
+      <div class="button-bar" style="text-alight:right !important;">
+         <a class="button button-balanced icon-left ion-plus-circled" ng-click="doAdd()">Add</a>
+         <a id="libraryStack" class="button icon-left ion-navicon-round " ng-click="doReorder()">Reorder</a>
+         <a id="libraryTrash" class="button  icon-left ion-trash-a" ng-click="doDelete()">Delete</a>
+      </div>
+      <ion-list show-delete="libraryTrash" show-reorder="libraryStack">
+         <ion-item class="item-icon-left" ng-repeat='item in library track by $index' ng-click=doClick({{$index}})>
+            <ion-delete-button class='ion-trash-a' ng-click="doDelete2($index)"></ion-delete-button>
+            <ion-reorder-button class="ion-navicon" on-reorder="moveLibrary(item, $fromIndex, $toIndex)"></ion-reorder-button>
+            <i class={{getBookIcon($index)}}></i>
+            <span style="white-space:normal;">{{bookListing($index)}}</span>
+         </ion-item>
+      </ion-list>
+   </ion-content>
 </ion-modal-view>

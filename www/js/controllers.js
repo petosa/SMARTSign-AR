@@ -330,7 +330,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA44Dt71cwwDYIlljzVbxEhWMv_3e2Nl5k',
             data: json,
             headers: {
                 "Content-Type": "application/json"
@@ -495,8 +495,6 @@ angular.module('app.controllers', [])
 
 .controller('libraryCtrl', function($scope, $rootScope, $ionicPopup, localStorageService) {
 
-    $rootScope.currentBook = "Default Book";
-    $rootScope.libraryTitle = "My Library"
     $rootScope.library = [];
     $rootScope.libraryTrash = false;
     $rootScope.libraryStack = false;

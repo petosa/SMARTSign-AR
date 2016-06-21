@@ -8,10 +8,10 @@ Use the built in camera to snap photos of text you come across at school, at the
 
 Pages can be saved to books so that you can organize and categorize your pages for future use.
 
-<img src="http://imgur.com/9qY3Vtx" width="200"/>
-<img src="http://imgur.com/Pv8BPGA" width="200"/>
-<img src="http://imgur.com/mq1iLl1" width="200"/>
-<img src="http://imgur.com/dMEoybb" width="200"/>
+<img src="http://i.imgur.com/dMEoybb.jpg" width="200"/>
+<img src="http://i.imgur.com/mq1iLl1.jpg" width="200"/>
+<img src="http://i.imgur.com/Pv8BPGA.png" width="200"/>
+<img src="http://i.imgur.com/9qY3Vtx.png" width="200"/>
 
 # How it Works
 The app itself was built with the cross-platform ionic framework. OCR (text extraction from images) is done using Google's new Vision API: https://cloud.google.com/vision/

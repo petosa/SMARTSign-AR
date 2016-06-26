@@ -2,11 +2,13 @@ angular.module('app.controllers', [])
 
 .controller('signBookCtrl', function($scope, $rootScope, $ionicModal, localStorageService) {
 
+    $rootScope.progress = '?';
+    $rootScope.progressTotal = '?';
+
     $rootScope.entry = {
         img: '',
-        terms: [
-            ['', ''],
-        ]
+        terms: [],
+        select: false
     };
     $rootScope.currentBook = "Default Book";
 
@@ -283,7 +285,9 @@ angular.module('app.controllers', [])
 
     //Open the saved modal
     $scope.show = function(t) {
+      console.log(t);
         $scope.choiceArray = [];
+        t = localStorageService.get("word:" + t);
         if (t == undefined)
             return;
         if (t.toString() != "") {
@@ -356,25 +360,24 @@ angular.module('app.controllers', [])
 
     //Query the CATS database for a phrase
     $scope.youtube = function(query, raw, ind) {
-        var url = 'http://smartsign.imtc.gatech.edu/videos?keywords=' + query;
+        var url = 'http://smartsign.imtc.gatech.edu/videos?keywords=' + query.replaceAll("#","");
         if (query != "") {
             $http.jsonp(url + "&callback=JSON_CALLBACK").success(function(data) {
                 try {
                     var videoObj = {
                         name: raw,
-                        jsonArray: data,
-                        //videoTitle: data[0].keywords.toString().replaceAll(",",", "),
+                        clean: query,
                         index: ind,
                         color: "button-positive"
                     };
                     //Force an error if no response
                     data[0].keywords.toString().replaceAll(",", ", ");
                     $rootScope.entry.terms.push(videoObj);
+                    localStorageService.set('word:' + query, data);
                     console.log("Accepted " + query + ": " + data[0].keywords);
                 } catch (e) {
                     var videoObj = {
                         name: raw,
-                        jsonArray: "",
                         index: ind,
                         color: ""
                     };
@@ -383,8 +386,12 @@ angular.module('app.controllers', [])
                 } finally {
                     $scope.phrasesParsed = $scope.phrasesParsed + 1;
                     console.log($scope.phrasesParsed + " of " + $scope.totalPhrases)
+                    $rootScope.progress = $scope.phrasesParsed;
+                    $rootScope.progressTotal = $scope.totalPhrases;
                     if ($scope.phrasesParsed == $scope.totalPhrases) {
                         $scope.finish(true);
+                        $rootScope.progress = '?';
+                        $rootScope.progressTotal = '?';
                     }
                 }
             });
@@ -421,33 +428,39 @@ angular.module('app.controllers', [])
 
         var arr = tags.split(" ");
 
+        console.log(JSON.stringify(arr));
         $scope.totalPhrases = arr.length - 1;
         $scope.phrasesParsed = 0;
 
         for (var i = 0; i < arr.length; i++)
             if (arr[i] != "") {
                 var temp = arr[i]
-                    .replace("'d", "")
-                    .replace("'D", "")
-                    .replace("'s", "")
-                    .replace("'S", "")
-                    .replace(".", "")
-                    .replace(",", "")
-                    .replace(":", "")
-                    .replace(";", "")
-                    .replace("?", "")
-                    .replace("!", "")
-                    .replace("_", "")
-                    .replace("&", "");
+                    .replaceAll("'d", "")
+                    .replaceAll("'D", "")
+                    .replaceAll("'s", "")
+                    .replaceAll("'S", "")
+                    .replaceAll(".", "")
+                    .replaceAll(",", "")
+                    .replaceAll(":", "")
+                    .replaceAll(";", "")
+                    .replaceAll("?", "")
+                    .replaceAll("!", "")
+                    .replaceAll("_", "")
+                    .replaceAll("&", "")
+                    .toLowerCase();
 
                 $scope.youtube(temp, arr[i], i);
             }
     }
 
+    $rootScope.clean = function(s) {
+
+    }
+
     //Show loading screen
     $scope.loading = function() {
         $ionicLoading.show({
-            template: 'Loading...' + '<br><ion-spinner icon="bubbles" style="stroke:#1097EB;fill:#1097EB;"></ion-spinner>'
+            template: '<div controller="cameraCtrl"> Loading...' + '<br><ion-spinner icon="bubbles" style="stroke:#1097EB;fill:#1097EB;"></ion-spinner><br>{{progress}} of {{progressTotal}}</div>'
         });
     };
 

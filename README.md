@@ -15,3 +15,4 @@ Pages can be saved to books so that you can organize and categorize your pages f
 
 # How it Works
 The app itself was built with the cross-platform ionic framework. OCR (text extraction from images) is done using Google's new Vision API: https://cloud.google.com/vision/
+Note: If you clone this, make sure you install the Cordova whitelist and camera plugins.

@@ -285,7 +285,6 @@ angular.module('app.controllers', [])
 
     //Open the saved modal
     $scope.show = function(t) {
-      console.log(t);
         $scope.choiceArray = [];
         t = localStorageService.get("word:" + t);
         if (t == undefined)
@@ -317,7 +316,7 @@ angular.module('app.controllers', [])
     }
 
     $scope.displayVideo = function(t) {
-        $scope.name = JSON.stringify(t.title).replaceAll(",", ", ").replaceAll("\"", "")
+        $scope.name = JSON.stringify(t.title).replaceAll(",", ", ").replaceAll("\"", "");
         $scope.id = t.id;
         $scope.videoModal.show();
     }
@@ -428,7 +427,6 @@ angular.module('app.controllers', [])
 
         var arr = tags.split(" ");
 
-        console.log(JSON.stringify(arr));
         $scope.totalPhrases = arr.length - 1;
         $scope.phrasesParsed = 0;
 
@@ -504,6 +502,10 @@ angular.module('app.controllers', [])
         $scope.url = $sce.trustAsResourceUrl('https://www.youtube.com/embed/' + $scope.id + '?rel=0&amp;showinfo=0');
         return $scope.url;
     }
+	
+	$scope.prettify = function(t) {
+		return t.replaceAll(",",", ");
+	}
 })
 
 .controller('libraryCtrl', function($scope, $rootScope, $ionicPopup, localStorageService) {

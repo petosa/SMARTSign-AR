@@ -5,8 +5,8 @@
     </ion-header-bar>
 	<ion-content>
         <ion-list>
-            <ion-item class="item-thumbnail-left" ng-repeat='item in choiceArray track by $index' ng-click="show('{{term.clean}}')">
-                {{item.data.title}}
+            <ion-item class="item-thumbnail-left" ng-repeat='item in choiceArray track by $index' ng-click="displayVideo({{item.data}})">
+                {{prettify(item.data.title)}}
                 <img src="{{item.data.thumbnail}}">
 			</ion-item>
         </ion-list>

@@ -10,7 +10,13 @@ angular.module('app.controllers', [])
         terms: [],
         select: false
     };
-    $rootScope.currentBook = "Default Book";
+
+    var cb = localStorageService.get("currentBook");
+    if(cb) {
+      $rootScope.currentBook = cb;
+    } else {
+      $rootScope.currentBook = "Default Book";
+    }
 
     $scope.getTitle = function() {
         if ($rootScope.currentBook == "Default Book") {
@@ -24,7 +30,6 @@ angular.module('app.controllers', [])
         var b = angular.element(document.querySelector('#libraryTrash'));
         if (bool) {
             b.addClass('button-assertive');
-            console.log("Trash colored red");
         } else {
             b.removeClass('button-assertive');
         }
@@ -39,31 +44,34 @@ angular.module('app.controllers', [])
         }
     }
 
-    $scope.smartPrint = function(t, i) {
-        if (i < 21) {
-            return t;
-        } else if (i == 21) {
-            return "..."
-        } else {
-            return "";
+    $scope.smartPrint = function(terms) {
+      var build = "";
+        for(var i = 0; i <= 20 && i < terms.length; i++) {
+          build = build + " " + terms[i].name;
+          if (i == 20) {
+            build = build + " ...";
+          }
         }
+      return build;
     }
 
     //Define a modal from the signBookEntry template
     $ionicModal.fromTemplateUrl('templates/signBookEntry.html', {
         scope: $scope
     }).then(function(modal) {
-        $scope.modal = modal;
+        $rootScope.entryModal = modal;
     });
-
-    //Define a modal from the library template
-
 
     //Display the stored modal
     $scope.show = function(e) {
+        $scope.entry = null;
         $scope.entry = $rootScope.entries[e];
-        $scope.modal.show();
+        $rootScope.entryModal.show();
     }
+
+    $scope.smartHide = function() {
+        $rootScope.entryModal.hide();
+      }
 
     //Display the stored modal
     $scope.showLibrary = function(e) {
@@ -82,6 +90,7 @@ angular.module('app.controllers', [])
         $rootScope.libraryStack = false;
         $rootScope.colorTrash(false);
         $rootScope.colorReorder(false);
+        $scope.libraryModal = null;
         $ionicModal.fromTemplateUrl('templates/library.html', {
             scope: $scope
         }).then(function(modal) {
@@ -140,7 +149,6 @@ angular.module('app.controllers', [])
         if ($scope.trashOn)
             $scope.toggleTrash();
         $scope.moveOn = !$scope.moveOn;
-        console.log($scope.moveOn)
         for (var i = 0; i < $rootScope.entries.length; i++) {
             $rootScope.entries[i].selected = false;
         }
@@ -203,13 +211,15 @@ angular.module('app.controllers', [])
     //When user clicks camera tab
     $scope.takePicture = function(options) {
 
-        //Run at start, create modal and spawn load screen
-        $ionicModal.fromTemplateUrl('templates/saveToSignBook.html', {
-            scope: $scope
-        }).then(function(modal) {
-            $scope.modal = modal;
-            $scope.loading();
-        });
+      //Clear now
+      $scope.modal = null;
+      $rootScope.entry = {
+              img: '',
+              terms: [],
+              select: false
+          };
+
+      $scope.loading();
 
         //Picture options
         var options = {
@@ -230,7 +240,6 @@ angular.module('app.controllers', [])
             $rootScope.entry.terms = [];
         }, function(err) {
             $scope.unloading();
-            console.log(err);
         });
 
     };
@@ -268,6 +277,7 @@ angular.module('app.controllers', [])
 
     $rootScope.hideSaveScreen = function() {
         $scope.modal.hide();
+		document.location.href = "index.html";
     }
 
     $scope.getVideoOrder = function(vid) {
@@ -333,7 +343,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY ',
             data: json,
             headers: {
                 "Content-Type": "application/json"
@@ -360,31 +370,24 @@ angular.module('app.controllers', [])
     //Query the CATS database for a phrase
     $scope.youtube = function(query, raw, ind) {
         var url = 'http://smartsign.imtc.gatech.edu/videos?keywords=' + query.replaceAll("#","");
+        var videoObj = {
+            name: raw,
+            clean: query,
+            index: ind,
+            color: "button-positive"
+        };
+
         if (query != "") {
             $http.jsonp(url + "&callback=JSON_CALLBACK").success(function(data) {
-                try {
-                    var videoObj = {
-                        name: raw,
-                        clean: query,
-                        index: ind,
-                        color: "button-positive"
-                    };
-                    //Force an error if no response
-                    data[0].keywords.toString().replaceAll(",", ", ");
+                    if(data[0] != undefined) {
+                      data[0].keywords.toString().replaceAll(",", ", ");
+                      $rootScope.entry.terms.push(videoObj);
+                      localStorageService.set('word:' + query, data);
+                    } else {
+                    videoObj.color = "";
                     $rootScope.entry.terms.push(videoObj);
-                    localStorageService.set('word:' + query, data);
-                    console.log("Accepted " + query + ": " + data[0].keywords);
-                } catch (e) {
-                    var videoObj = {
-                        name: raw,
-                        index: ind,
-                        color: ""
-                    };
-                    $rootScope.entry.terms.push(videoObj);
-                    console.log("Rejected " + query);
-                } finally {
+                    }
                     $scope.phrasesParsed = $scope.phrasesParsed + 1;
-                    console.log($scope.phrasesParsed + " of " + $scope.totalPhrases)
                     $rootScope.progress = $scope.phrasesParsed;
                     $rootScope.progressTotal = $scope.totalPhrases;
                     if ($scope.phrasesParsed == $scope.totalPhrases) {
@@ -392,21 +395,13 @@ angular.module('app.controllers', [])
                         $rootScope.progress = '?';
                         $rootScope.progressTotal = '?';
                     }
-                }
             });
         } else {
-            var videoObj = {
-                name: raw,
-                jsonArray: [],
-                index: ind,
-                color: ""
-            };
-            $rootScope.entry.terms.push(videoObj);
-            console.log("Rejected " + query);
             $scope.phrasesParsed = $scope.phrasesParsed + 1;
-            console.log($scope.phrasesParsed + " of " + $scope.totalPhrases)
             if ($scope.phrasesParsed == $scope.totalPhrases) {
                 $scope.finish(true);
+                $rootScope.progress = '?';
+                $rootScope.progressTotal = '?';
             }
         }
     }
@@ -416,10 +411,11 @@ angular.module('app.controllers', [])
         if (!success) {
             $scope.unloading();
             $scope.showAlert();
+			return;
         }
 
-        while (tags.indexOf('\"') != -1) {
-            tags = tags.replace('\"', "");
+        while (tags.indexOf('\\' + '\"') != -1) {
+            tags = tags.replace('\\' + '\"', '\"');
         }
         while (tags.indexOf(String.fromCharCode(92) + "n") != -1) {
             tags = tags.replace(String.fromCharCode(92) + "n", " ");
@@ -445,14 +441,13 @@ angular.module('app.controllers', [])
                     .replaceAll("!", "")
                     .replaceAll("_", "")
                     .replaceAll("&", "")
+                    .replaceAll("\\", "")
+                    .replaceAll("/", "")
+                    .replaceAll("\"", "")
                     .toLowerCase();
 
                 $scope.youtube(temp, arr[i], i);
             }
-    }
-
-    $rootScope.clean = function(s) {
-
     }
 
     //Show loading screen
@@ -481,8 +476,14 @@ angular.module('app.controllers', [])
     $scope.finish = function(success) {
         $rootScope.entry.terms.sort($scope.compare);
         $scope.unloading();
-        if (success)
-            $scope.modal.show();
+        $ionicModal.fromTemplateUrl('templates/saveToSignBook.html', {
+            scope: $scope,
+			hardwareBackButtonClose: false
+        }).then(function(modal) {
+            $scope.modal = modal;
+            if (success)
+                $scope.modal.show();
+        });
     }
 
     //Show error
@@ -502,7 +503,7 @@ angular.module('app.controllers', [])
         $scope.url = $sce.trustAsResourceUrl('https://www.youtube.com/embed/' + $scope.id + '?rel=0&amp;showinfo=0');
         return $scope.url;
     }
-	
+
 	$scope.prettify = function(t) {
 		return t.replaceAll(",",", ");
 	}
@@ -541,11 +542,13 @@ angular.module('app.controllers', [])
         e = $rootScope.library[e];
         if ($rootScope.libraryTitle == "My Library") {
             $rootScope.currentBook = e;
+            localStorageService.set("currentBook", e);
             $scope.hideLibrary();
             $rootScope.getEntries();
         }
         if ($rootScope.libraryTitle == "Save to which book?") {
             $rootScope.currentBook = e;
+            localStorageService.set("currentBook", e);
             $rootScope.getEntries();
             $rootScope.addAndSave();
             $scope.hideLibrary();
@@ -576,6 +579,7 @@ angular.module('app.controllers', [])
                 }
                 $rootScope.safeSet($rootScope.currentBook, $rootScope.entries);
                 $rootScope.currentBook = e;
+                localStorageService.set("currentBook", e);
                 $scope.toggleMove();
                 $rootScope.getEntries();
                 $scope.hideLibrary();
@@ -617,6 +621,7 @@ angular.module('app.controllers', [])
             localStorageService.set('library', $rootScope.library);
             $rootScope.safeRemove(toDelete);
             if ($rootScope.currentBook == toDelete) {
+              localStorageService.set("currentBook", "Default Book");
                 $rootScope.currentBook = "Default Book";
                 $rootScope.getEntries();
             }

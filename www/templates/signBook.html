@@ -14,7 +14,7 @@
                 <ion-delete-button class='{{getBubble($index)}}' ng-click=flipFlop($index)></ion-delete-button>
                 <ion-reorder-button class="ion-navicon" on-reorder="moveEntry(item, $fromIndex, $toIndex)"></ion-reorder-button>
                 <img src="{{item.img}}">
-                <span class="ellipsis" style="white-space:normal;" ng-repeat='term in item.terms track by $index'>{{smartPrint(term.name, $index)}} </span>
+                <span class="ellipsis" style="white-space:normal;">{{smartPrint(item.terms)}} </span>
             </ion-item>
         </ion-list>
         </ion-content>

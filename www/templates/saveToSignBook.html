@@ -5,10 +5,11 @@
     </ion-header-bar>
     <ion-content ng-controller="cameraCtrl">
         <div class="list card">
+			<button ng-click="rotatePicture()" style="font-weight:300;" class="button-small icon-right button button-block button-positive ion-refresh">Rotate 90°</button>
             <div class="item item-image">
-                <img src={{entry.img}} width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
-            </div>
-            <button ng-repeat="term in entry.terms" ng-click=show("{{term.clean}}") style="font-weight:300;" class=" button {{term.color}} button-clear ">{{term.name}}</button>
+                <img id="imgSave" src={{entry.img}} width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+			</div>
+			<button ng-repeat="term in entry.terms" ng-click=show("{{term.clean}}") style="font-weight:300;" class=" button {{term.color}} button-clear ">{{term.name}}</button>
         </div>
 
     </ion-content>

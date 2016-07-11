@@ -64,8 +64,8 @@ angular.module('app.controllers', [])
 
     //Display the stored modal
     $scope.show = function(e) {
-        $scope.entry = null;
-        $scope.entry = $rootScope.entries[e];
+        $rootScope.entry = null;
+        $rootScope.entry = $rootScope.entries[e];
         $rootScope.entryModal.show();
     }
 
@@ -207,7 +207,22 @@ angular.module('app.controllers', [])
 })
 
 .controller('cameraCtrl', function($scope, $rootScope, $ionicPopup, $ionicModal, $http, $ionicLoading, Camera, localStorageService) {
-
+ 
+	$rootScope.rotatePicture = function() {
+		var canvas = document.createElement('canvas');
+		var img = angular.element(document.querySelector('imgEntry'))[0];
+		var img2 = document.createElement("img");
+		img2.src = $rootScope.entry.img;
+		canvas.setAttribute('width', img2.height);
+		canvas.setAttribute('height', img2.width);
+		var context = canvas.getContext('2d');
+		context.rotate(90 * Math.PI / 180);
+		context.drawImage(img2, 0, -img2.height);
+		context.drawImage(img2, 0 ,0);
+		$rootScope.entry.img = canvas.toDataURL("image/jpeg");
+	
+	} 
+	
     //When user clicks camera tab
     $scope.takePicture = function(options) {
 

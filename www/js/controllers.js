@@ -12,10 +12,10 @@ angular.module('app.controllers', [])
     };
 
     var cb = localStorageService.get("currentBook");
-    if(cb) {
-      $rootScope.currentBook = cb;
+    if (cb) {
+        $rootScope.currentBook = cb;
     } else {
-      $rootScope.currentBook = "Default Book";
+        $rootScope.currentBook = "Default Book";
     }
 
     $scope.getTitle = function() {
@@ -45,14 +45,14 @@ angular.module('app.controllers', [])
     }
 
     $scope.smartPrint = function(terms) {
-      var build = "";
-        for(var i = 0; i <= 20 && i < terms.length; i++) {
-          build = build + " " + terms[i].name;
-          if (i == 20) {
-            build = build + " ...";
-          }
+        var build = "";
+        for (var i = 0; i <= 20 && i < terms.length; i++) {
+            build = build + " " + terms[i].name;
+            if (i == 20) {
+                build = build + " ...";
+            }
         }
-      return build;
+        return build;
     }
 
     //Define a modal from the signBookEntry template
@@ -71,7 +71,7 @@ angular.module('app.controllers', [])
 
     $scope.smartHide = function() {
         $rootScope.entryModal.hide();
-      }
+    }
 
     //Display the stored modal
     $scope.showLibrary = function(e) {
@@ -206,54 +206,108 @@ angular.module('app.controllers', [])
     }
 })
 
-.controller('cameraCtrl', function($scope, $rootScope, $ionicPopup, $ionicModal, $http, $ionicLoading, Camera, localStorageService) {
- 
-	$rootScope.rotatePicture = function() {
-		var canvas = document.createElement('canvas');
-		var img = angular.element(document.querySelector('imgEntry'))[0];
-		var img2 = document.createElement("img");
-		img2.src = $rootScope.entry.img;
-		canvas.setAttribute('width', img2.height);
-		canvas.setAttribute('height', img2.width);
-		var context = canvas.getContext('2d');
-		context.rotate(90 * Math.PI / 180);
-		context.drawImage(img2, 0, -img2.height);
-		context.drawImage(img2, 0 ,0);
-		$rootScope.entry.img = canvas.toDataURL("image/jpeg");
-	
-	} 
-	
+.controller('cameraCtrl', function($scope, $rootScope, $ionicPopup, $ionicModal, $http, $ionicLoading, Camera, $cordovaFile, localStorageService) {
+
+	$rootScope.hardDelete = function(filename) {
+		   $cordovaFile.removeFile(cordova.file.externalApplicationStorageDirectory + "files/", filename)
+      .then(function (success) {
+        // success
+      }, function (error) {
+        // error
+      });
+	}
+
+    $rootScope.rotatePicture = function() {
+        var canvas = document.createElement('canvas');
+        var img = angular.element(document.querySelector('imgEntry'))[0];
+        var img2 = document.createElement("img");
+        img2.src = $rootScope.entry.img;
+		console.log($rootScope.entry.img);
+        canvas.setAttribute('width', img2.height);
+        canvas.setAttribute('height', img2.width);
+        var context = canvas.getContext('2d');
+        context.rotate(90 * Math.PI / 180);
+        context.drawImage(img2, 0, -img2.height);
+        context.drawImage(img2, 0, 0);
+		
+		var fileuri = $rootScope.entry.img;
+		var currentName = fileuri.replace(/^.*[\\\/]/, '');
+        var filePath = fileuri.replace(currentName, "");
+		var d = new Date(),
+                    n = d.getTime(),
+                    newFileName = n + ".jpg";
+					
+		canvas.toBlob(function(blob) {
+			
+	$cordovaFile.writeFile(filePath, newFileName, blob, "image/jpeg", true)
+      .then(function (success) {
+		  $rootScope.hardDelete(currentName);
+		  $rootScope.entry.img = filePath + newFileName; 
+      }, function (error) {
+        // error
+      });
+		
+		}, "image/jpeg");
+		
+    }
+
     //When user clicks camera tab
     $scope.takePicture = function(options) {
 
-      //Clear now
-      $scope.modal = null;
-      $rootScope.entry = {
-              img: '',
-              terms: [],
-              select: false
-          };
+        //Clear now
+        $scope.modal = null;
+        $rootScope.entry = {
+            img: '',
+            terms: [],
+            select: false
+        };
 
-      $scope.loading();
+        $scope.loading();
 
         //Picture options
         var options = {
             quality: 75,
             targetWidth: 1080,
-            destinationType: navigator.camera.DestinationType.DATA_URL,
+            destinationType: navigator.camera.DestinationType.FILE_URI,
             sourceType: 1,
             correctOrientation: true,
             encodingType: navigator.camera.EncodingType.JPEG
         };
 
         //Launch camera
-        Camera.getPicture(options).then(function(imageData) {
-            //Interpret image text
-            $scope.gcloud(imageData);
-            //Set entry data
-            $rootScope.entry.img = "data:image/jpeg;base64," + imageData;
-            $rootScope.entry.terms = [];
+        Camera.getPicture(options).then(function(imagePath) {
+
+            function moveFile(fileUri) {
+                var currentName = imagePath.replace(/^.*[\\\/]/, '');
+                var filePath = fileUri.replace(currentName, "");
+                var target = cordova.file.externalApplicationStorageDirectory + "files/";
+                var d = new Date(),
+                    n = d.getTime(),
+                    newFileName = n + ".jpg";
+
+                $cordovaFile.moveFile(filePath, currentName, target, newFileName)
+                    .then(function(success) {
+                        var thePath = success.nativeURL;
+
+                        $cordovaFile.readAsDataURL(target, newFileName)
+                            .then(function(success) {
+                                $rootScope.entry.terms = [];
+                                $rootScope.entry.img = thePath;
+                                $scope.gcloud(success.substring(23));
+
+                            }, function(error) {
+								console.log("Error")
+                            });
+
+                    }, function(error) {
+                        console.log("Error")
+                    });
+
+            }
+            moveFile(imagePath);
+
         }, function(err) {
+            console.log("Failed in move")
             $scope.unloading();
         });
 
@@ -292,7 +346,7 @@ angular.module('app.controllers', [])
 
     $rootScope.hideSaveScreen = function() {
         $scope.modal.hide();
-		document.location.href = "index.html";
+        document.location.href = "index.html";
     }
 
     $scope.getVideoOrder = function(vid) {
@@ -372,6 +426,9 @@ angular.module('app.controllers', [])
             }
             //On error callback
         }, function errorCallback(response) {
+            console.log("Google failed");
+            var msg = JSON.stringify(response);
+            console.log(msg.substring(0, 2000));
             $scope.format("", false);
         });
 
@@ -384,7 +441,7 @@ angular.module('app.controllers', [])
 
     //Query the CATS database for a phrase
     $scope.youtube = function(query, raw, ind) {
-        var url = 'http://smartsign.imtc.gatech.edu/videos?keywords=' + query.replaceAll("#","");
+        var url = 'http://smartsign.imtc.gatech.edu/videos?keywords=' + query.replaceAll("#", "");
         var videoObj = {
             name: raw,
             clean: query,
@@ -394,22 +451,22 @@ angular.module('app.controllers', [])
 
         if (query != "") {
             $http.jsonp(url + "&callback=JSON_CALLBACK").success(function(data) {
-                    if(data[0] != undefined) {
-                      data[0].keywords.toString().replaceAll(",", ", ");
-                      $rootScope.entry.terms.push(videoObj);
-                      localStorageService.set('word:' + query, data);
-                    } else {
+                if (data[0] != undefined) {
+                    data[0].keywords.toString().replaceAll(",", ", ");
+                    $rootScope.entry.terms.push(videoObj);
+                    localStorageService.set('word:' + query, data);
+                } else {
                     videoObj.color = "";
                     $rootScope.entry.terms.push(videoObj);
-                    }
-                    $scope.phrasesParsed = $scope.phrasesParsed + 1;
-                    $rootScope.progress = $scope.phrasesParsed;
-                    $rootScope.progressTotal = $scope.totalPhrases;
-                    if ($scope.phrasesParsed == $scope.totalPhrases) {
-                        $scope.finish(true);
-                        $rootScope.progress = '?';
-                        $rootScope.progressTotal = '?';
-                    }
+                }
+                $scope.phrasesParsed = $scope.phrasesParsed + 1;
+                $rootScope.progress = $scope.phrasesParsed;
+                $rootScope.progressTotal = $scope.totalPhrases;
+                if ($scope.phrasesParsed == $scope.totalPhrases) {
+                    $scope.finish(true);
+                    $rootScope.progress = '?';
+                    $rootScope.progressTotal = '?';
+                }
             });
         } else {
             $scope.phrasesParsed = $scope.phrasesParsed + 1;
@@ -426,7 +483,7 @@ angular.module('app.controllers', [])
         if (!success) {
             $scope.unloading();
             $scope.showAlert();
-			return;
+            return;
         }
 
         while (tags.indexOf('\\' + '\"') != -1) {
@@ -493,7 +550,7 @@ angular.module('app.controllers', [])
         $scope.unloading();
         $ionicModal.fromTemplateUrl('templates/saveToSignBook.html', {
             scope: $scope,
-			hardwareBackButtonClose: false
+            hardwareBackButtonClose: false
         }).then(function(modal) {
             $scope.modal = modal;
             if (success)
@@ -519,9 +576,9 @@ angular.module('app.controllers', [])
         return $scope.url;
     }
 
-	$scope.prettify = function(t) {
-		return t.replaceAll(",",", ");
-	}
+    $scope.prettify = function(t) {
+        return t.replaceAll(",", ", ");
+    }
 })
 
 .controller('libraryCtrl', function($scope, $rootScope, $ionicPopup, localStorageService) {
@@ -636,7 +693,7 @@ angular.module('app.controllers', [])
             localStorageService.set('library', $rootScope.library);
             $rootScope.safeRemove(toDelete);
             if ($rootScope.currentBook == toDelete) {
-              localStorageService.set("currentBook", "Default Book");
+                localStorageService.set("currentBook", "Default Book");
                 $rootScope.currentBook = "Default Book";
                 $rootScope.getEntries();
             }

@@ -15,6 +15,9 @@
                 <ion-reorder-button class="ion-navicon" on-reorder="moveEntry(item, $fromIndex, $toIndex)"></ion-reorder-button>
                 <img src="{{item.img}}">
                 <span class="ellipsis" style="white-space:normal;">{{smartPrint(item.terms)}} </span>
+				<button ng-if=lastRead(item) class="button button-full button-small button-assertive">
+				Last Read
+				</button>
             </ion-item>
         </ion-list>
         </ion-content>

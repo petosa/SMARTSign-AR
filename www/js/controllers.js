@@ -17,6 +17,12 @@ angular.module('app.controllers', [])
     } else {
         $rootScope.currentBook = "Default Book";
     }
+	
+	$rootScope.lastRead = undefined;
+	
+	$scope.lastRead = function(item) {
+		return $rootScope.lastRead == item;
+	}
 
     $scope.getTitle = function() {
         if ($rootScope.currentBook == "Default Book") {
@@ -67,6 +73,7 @@ angular.module('app.controllers', [])
         $rootScope.entry = null;
         $rootScope.entry = $rootScope.entries[e];
         $rootScope.entryModal.show();
+		$rootScope.lastRead = $rootScope.entry;
     }
 
     $scope.smartHide = function() {
@@ -412,7 +419,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY ',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY  ',
             data: json,
             headers: {
                 "Content-Type": "application/json"

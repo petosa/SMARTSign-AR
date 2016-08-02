@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <widget id="com.ionicframework.signbook563294" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-  <name>SMARTSign Magic</name>
+  <name>SMARTSign AR</name>
   <description>&#xD;
-         SMARTSign Magic Ionic application for Georgia Tech's Center for Accessible Technology in Sign (CATS).&#xD;
+         SMARTSign AR Ionic application for Georgia Tech's Center for Accessible Technology in Sign (CATS).&#xD;
     </description>
   <author email="nick.petosa@gmail.com" href="https://github.com/petosa">&#xD;
       Nicholas Petosa&#xD;

@@ -26,7 +26,7 @@ angular.module('app.controllers', [])
 
     $scope.getTitle = function() {
         if ($rootScope.currentBook == "Default Book") {
-            return "SMARTSign Magic"
+            return "SMARTSign AR"
         } else {
             return $rootScope.currentBook;
         }
@@ -419,7 +419,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY  ',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA44Dt71cwwDYIlljzVbxEhWMv_3e2Nl5k   ',
             data: json,
             headers: {
                 "Content-Type": "application/json"

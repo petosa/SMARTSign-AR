@@ -16,3 +16,11 @@ Pages can be saved to books so that you can organize and categorize your pages f
 # How it Works
 The app itself was built with the cross-platform ionic framework. OCR (text extraction from images) is done using Google's new Vision API: https://cloud.google.com/vision/
 Note: If you clone this, make sure you install the Cordova whitelist and camera plugins.
+
+# Build instructions
+1. Install Node.js v4.4.7
+2. Change directory into the cloned repo and run `npm install`
+3. Run `npm install -g ionic` with proper permissions
+4. Run `npm install -g cordova` with proper permissions
+5. Run `ionic platform add ios` or `ionic platform add android` depending on what platform you are building it for.
+6. Run `ionic build ios --release` or `ionic build android --release` to get an xCode project or an APK. You can also emulate your app or run it on a live device without building. All of those intracacies are detailed in the Ionic quick start guide. See http://ionicframework.com/docs/guide/testing.html

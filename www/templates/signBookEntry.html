@@ -1,7 +1,7 @@
 <ion-modal-view>
     <ion-header-bar class="bar bar-header bar-dark">
         <h1 class="title">SignBook Entry</h1>
-        <button class="button button-clear button-primary" ng-click="smartHide()">Back</button>
+		<button class="button button-clear button-primary" ng-click="smartHide()">Back</button>
     </ion-header-bar>
     <ion-content ng-controller="cameraCtrl">
         <div class="list card">
@@ -11,4 +11,9 @@
             <button ng-repeat="term in entry.terms" ng-click=show("{{term.clean}}") style="font-weight:300;" class=" button {{term.color}} button-clear ">{{term.name}} </button>
         </div>
     </ion-content>
+		<ion-footer-bar style="color=transparent">
+			<div class="button-bar">
+                <a  class=" button button-stable  button-block" ng-click="nextPage()">Next Page</a>
+		</div>
+		</ion-footer-bar>
 </ion-modal-view>

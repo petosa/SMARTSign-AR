@@ -19,6 +19,8 @@ angular.module('app.controllers', [])
     }
 	
 	$rootScope.lastRead = undefined;
+	$rootScope.lastIndex = -1;
+	$rootScope.maxIndex = -1;
 	
 	$scope.lastRead = function(item) {
 		return $rootScope.lastRead == item;
@@ -70,11 +72,25 @@ angular.module('app.controllers', [])
 
     //Display the stored modal
     $scope.show = function(e) {
+		$rootScope.lastIndex = e;
+		$rootScope.maxIndex = $rootScope.entries.length - 1;
         $rootScope.entry = null;
         $rootScope.entry = $rootScope.entries[e];
         $rootScope.entryModal.show();
 		$rootScope.lastRead = $rootScope.entry;
     }
+	
+	$scope.nextPage = function() {
+		if ($rootScope.maxIndex != $rootScope.lastIndex) {
+
+			$rootScope.lastIndex = $rootScope.lastIndex + 1;
+			$rootScope.entry = null;
+			$rootScope.entry = $rootScope.entries[$rootScope.lastIndex];
+			$rootScope.lastRead = $rootScope.entry;
+		} else {
+			$rootScope.entryModal.hide();
+		}
+	}
 
     $scope.smartHide = function() {
         $rootScope.entryModal.hide();
@@ -419,7 +435,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA44Dt71cwwDYIlljzVbxEhWMv_3e2Nl5k   ',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY_HERE   ',
             data: json,
             headers: {
                 "Content-Type": "application/json"

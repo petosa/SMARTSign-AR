@@ -82,7 +82,6 @@ angular.module('app.controllers', [])
 	
 	$scope.nextPage = function() {
 		if ($rootScope.maxIndex != $rootScope.lastIndex) {
-
 			$rootScope.lastIndex = $rootScope.lastIndex + 1;
 			$rootScope.entry = null;
 			$rootScope.entry = $rootScope.entries[$rootScope.lastIndex];
@@ -92,6 +91,17 @@ angular.module('app.controllers', [])
 		}
 	}
 
+	$scope.prevPage = function() {
+		if (0 != $rootScope.lastIndex) {
+			$rootScope.lastIndex = $rootScope.lastIndex - 1;
+			$rootScope.entry = null;
+			$rootScope.entry = $rootScope.entries[$rootScope.lastIndex];
+			$rootScope.lastRead = $rootScope.entry;
+		} else {
+			$rootScope.entryModal.hide();
+		}
+	}
+	
     $scope.smartHide = function() {
         $rootScope.entryModal.hide();
     }
@@ -435,7 +445,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA44Dt71cwwDYIlljzVbxEhWMv_3e2Nl5k   ',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY   ',
             data: json,
             headers: {
                 "Content-Type": "application/json"

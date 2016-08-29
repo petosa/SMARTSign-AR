@@ -11,9 +11,10 @@
             <button ng-repeat="term in entry.terms" ng-click=show("{{term.clean}}") style="font-weight:300;" class=" button {{term.color}} button-clear ">{{term.name}} </button>
         </div>
     </ion-content>
-		<ion-footer-bar style="color=transparent">
-			<div class="button-bar">
-                <a  class=" button button-stable  button-block" ng-click="nextPage()">Next Page</a>
+	<ion-footer-bar style="color=transparent">
+		<div class="button-bar">
+            <a style="margin-top:4px; font-size: 22px;" id="saveToSignBook-button1" class="button button-block button-calm ion-android-arrow-back button-outline" ng-click="prevPage();"></a>
+            <a style="margin-top:4px; font-size: 22px;" class=" button button-outline button-block button-calm ion-android-arrow-forward" ng-click="nextPage()"></a>
 		</div>
-		</ion-footer-bar>
+	</ion-footer-bar>
 </ion-modal-view>

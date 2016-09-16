@@ -403,6 +403,7 @@ angular.module('app.controllers', [])
             return;
         if (t.toString() != "") {
             try {
+				console.log(t);
                 t = t.replaceAll("\n", "");
                 t = JSON.parse(t);
             } catch (e) {}
@@ -445,7 +446,7 @@ angular.module('app.controllers', [])
         //Post
         $http({
             method: 'POST',
-            url: 'https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY   ',
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA44Dt71cwwDYIlljzVbxEhWMv_3e2Nl5k   ',
             data: json,
             headers: {
                 "Content-Type": "application/json"

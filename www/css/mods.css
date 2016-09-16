@@ -2,6 +2,12 @@
   .pop {
 	transform: translateY(10%);
   }
+  .thumbs {
+    top: 0px !important;
+    left: 0px !important;
+    max-width: 300px !important;
+    max-height: 300px !important;
+  }
   .active .modal-backdrop-bg {
     opacity: .6;
   }

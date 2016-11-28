@@ -475,7 +475,7 @@ angular.module('app.controllers', [])
 
     //Query the CATS database for a phrase
     $scope.youtube = function(query, raw, ind) {
-        var url = 'http://smartsign.imtc.gatech.edu/videos?keywords=' + query.replaceAll("#", "");
+        var url = 'https://dictionary-smartsign.rhcloud.com/videos?keywords=' + query.replaceAll("#", "");
         var videoObj = {
             name: raw,
             clean: query,
@@ -485,6 +485,7 @@ angular.module('app.controllers', [])
 
         if (query != "") {
             $http.jsonp(url + "&callback=JSON_CALLBACK").success(function(data) {
+				data = data.data;
                 if (data[0] != undefined) {
                     data[0].keywords.toString().replaceAll(",", ", ");
                     $rootScope.entry.terms.push(videoObj);

@@ -17,11 +17,11 @@ angular.module('app.controllers', [])
     } else {
         $rootScope.currentBook = "Default Book";
     }
-	
+
 	$rootScope.lastRead = undefined;
 	$rootScope.lastIndex = -1;
 	$rootScope.maxIndex = -1;
-	
+
 	$scope.lastRead = function(item) {
 		return $rootScope.lastRead == item;
 	}
@@ -79,7 +79,7 @@ angular.module('app.controllers', [])
         $rootScope.entryModal.show();
 		$rootScope.lastRead = $rootScope.entry;
     }
-	
+
 	$scope.nextPage = function() {
 		if ($rootScope.maxIndex != $rootScope.lastIndex) {
 			$rootScope.lastIndex = $rootScope.lastIndex + 1;
@@ -101,7 +101,7 @@ angular.module('app.controllers', [])
 			$rootScope.entryModal.hide();
 		}
 	}
-	
+
     $scope.smartHide = function() {
         $rootScope.entryModal.hide();
     }
@@ -242,7 +242,7 @@ angular.module('app.controllers', [])
 .controller('cameraCtrl', function($scope, $rootScope, $ionicPopup, $ionicModal, $http, $ionicLoading, Camera, $cordovaFile, localStorageService) {
 
 	$rootScope.hardDelete = function(filename) {
-		   $cordovaFile.removeFile(cordova.file.externalApplicationStorageDirectory + "files/", filename)
+		   $cordovaFile.removeFile(cordova.file.dataDirectory, filename)
       .then(function (success) {
         // success
       }, function (error) {
@@ -262,26 +262,26 @@ angular.module('app.controllers', [])
         context.rotate(90 * Math.PI / 180);
         context.drawImage(img2, 0, -img2.height);
         context.drawImage(img2, 0, 0);
-		
+
 		var fileuri = $rootScope.entry.img;
 		var currentName = fileuri.replace(/^.*[\\\/]/, '');
         var filePath = fileuri.replace(currentName, "");
 		var d = new Date(),
                     n = d.getTime(),
                     newFileName = n + ".jpg";
-					
+
 		canvas.toBlob(function(blob) {
-			
+
 	$cordovaFile.writeFile(filePath, newFileName, blob, "image/jpeg", true)
       .then(function (success) {
 		  $rootScope.hardDelete(currentName);
-		  $rootScope.entry.img = filePath + newFileName; 
+		  $rootScope.entry.img = filePath + newFileName;
       }, function (error) {
         // error
       });
-		
+
 		}, "image/jpeg");
-		
+
     }
 
     //When user clicks camera tab
@@ -313,11 +313,16 @@ angular.module('app.controllers', [])
             function moveFile(fileUri) {
                 var currentName = imagePath.replace(/^.*[\\\/]/, '');
                 var filePath = fileUri.replace(currentName, "");
-                var target = cordova.file.externalApplicationStorageDirectory + "files/";
+                var target = cordova.file.dataDirectory;
                 var d = new Date(),
                     n = d.getTime(),
                     newFileName = n + ".jpg";
 
+
+                console.log(filePath)
+                console.log(currentName)
+                console.log(target)
+                console.log(newFileName)
                 $cordovaFile.moveFile(filePath, currentName, target, newFileName)
                     .then(function(success) {
                         var thePath = success.nativeURL;
@@ -329,11 +334,12 @@ angular.module('app.controllers', [])
                                 $scope.gcloud(success.substring(23));
 
                             }, function(error) {
-								console.log("Error")
+								console.log("Error1")
                             });
 
                     }, function(error) {
-                        console.log("Error")
+                        console.log("error flag")
+                        console.log(error)
                     });
 
             }
@@ -608,6 +614,7 @@ angular.module('app.controllers', [])
     //Returns a validated url to the youtube video
     $scope.getUrl = function() {
         $scope.url = $sce.trustAsResourceUrl('https://www.youtube.com/embed/' + $scope.id + '?rel=0&amp;showinfo=0');
+        console.log('https://www.youtube.com/embed/' + $scope.id + '?rel=0&amp;showinfo=0');
         return $scope.url;
     }
 

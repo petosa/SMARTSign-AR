@@ -26,8 +26,7 @@ Note: If you clone this, make sure you install the Cordova whitelist and camera 
 6. Run `ionic build ios --release` or `ionic build android --release` to get an xCode project or an APK. You can also emulate your app or run it on a live device without building. All of those intracacies are detailed in the Ionic quick start guide. See http://ionicframework.com/docs/guide/testing.html
 
 # Plugin Downloads
-cordova plugin add cordova-plugin-camera
-cordova plugin add cordova-plugin-file
-cordova plugin add cordova-plugin-whitelist
-cordova plugin add cordova-plugin-compat
-
+- cordova plugin add cordova-plugin-camera
+- cordova plugin add cordova-plugin-file
+- cordova plugin add cordova-plugin-whitelist
+- cordova plugin add cordova-plugin-compat

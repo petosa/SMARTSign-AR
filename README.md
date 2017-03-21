@@ -2,6 +2,7 @@
 ## Available now on the Google Play Store!
 https://play.google.com/store/apps/details?id=com.ionicframework.signbook563294
 
+Click the image below to play a video demo.
 [![](http://i.imgur.com/d2IlRk0.png)](https://www.youtube.com/watch?v=WqTYQB4JrKk)
 
 A cross-platform phone application for learning sign language on the fly. Part of The Center for Accessible Technology in Sign (CATS) at Georgia Tech. http://www.cats.gatech.edu/
